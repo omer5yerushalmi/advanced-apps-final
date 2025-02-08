@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "module": "ES2022", 
+    "moduleResolution": "node",
+    "target": "ES2022", 
+    "esModuleInterop": true,
+    "outDir": "./dist", // Output to dist folder
+    "baseUrl": "./src",
+    "resolveJsonModule": true
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
+}
