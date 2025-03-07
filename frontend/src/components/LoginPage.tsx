@@ -7,28 +7,10 @@ import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import Box from '@mui/material/Box';
 import InputAdornment from '@mui/material/InputAdornment';
-
-// Custom icon components instead of using lucide-react
-const MailIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
-  </svg>
-);
-
-const LockIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-  </svg>
-);
-
-const UserIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
-    <circle cx="12" cy="7" r="4"></circle>
-  </svg>
-);
+import EmailIcon from '@mui/icons-material/Email';
+import LockIcon from '@mui/icons-material/Lock';
+import PersonIcon from '@mui/icons-material/Person';
+import GoogleIcon from '@mui/icons-material/Google';
 
 interface FormData {
   email: string;
@@ -66,9 +48,9 @@ const AuthComponent: React.FC = () => {
         padding: 2
       }}
     >
-      <Card sx={{ width: '100%', maxWidth: 400, bgcolor: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(4px)' }}>
+      <Card sx={{ width: '100%', maxWidth: 400, bgcolor: 'rgba(255, 255, 255, 0.95)' }}>
         <Box sx={{ p: 2, textAlign: 'center' }}>
-          <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold', color: 'text.primary' }}>
+          <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
             {isLogin ? 'Welcome Back' : 'Create Account'}
           </Typography>
         </Box>
@@ -77,13 +59,13 @@ const AuthComponent: React.FC = () => {
             {!isLogin && (
               <TextField
                 fullWidth
-                placeholder="Full Name"
+                label="Full Name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <UserIcon />
+                      <PersonIcon />
                     </InputAdornment>
                   ),
                 }}
@@ -93,13 +75,13 @@ const AuthComponent: React.FC = () => {
             <TextField
               fullWidth
               type="email"
-              placeholder="Email"
+              label="Email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <MailIcon />
+                    <EmailIcon />
                   </InputAdornment>
                 ),
               }}
@@ -108,7 +90,7 @@ const AuthComponent: React.FC = () => {
             <TextField
               fullWidth
               type="password"
-              placeholder="Password"
+              label="Password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               InputProps={{
@@ -124,11 +106,8 @@ const AuthComponent: React.FC = () => {
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ 
-                bgcolor: '#9333ea', 
-                '&:hover': { bgcolor: '#7e22ce' },
-                py: 1
-              }}
+              color="primary"
+              sx={{ py: 1 }}
             >
               {isLogin ? 'Sign In' : 'Sign Up'}
             </Button>
@@ -155,31 +134,10 @@ const AuthComponent: React.FC = () => {
               fullWidth
               variant="outlined"
               onClick={handleGoogleLogin}
-              sx={{ 
-                borderColor: 'rgba(107, 114, 128, 0.5)', 
-                py: 1,
-                '&:hover': { bgcolor: 'rgba(243, 244, 246, 0.5)' }
-              }}
+              startIcon={<GoogleIcon />}
+              sx={{ py: 1 }}
             >
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Typography component="span" sx={{ fontWeight: 'bold', mr: 1 }}>
-                  <Typography component="span" sx={{ color: '#3b82f6' }}>G</Typography>
-                  <Typography component="span" sx={{ color: '#ef4444' }}>o</Typography>
-                  <Typography component="span" sx={{ color: '#f59e0b' }}>o</Typography>
-                  <Typography component="span" sx={{ color: '#3b82f6' }}>g</Typography>
-                  <Typography component="span" sx={{ color: '#22c55e' }}>l</Typography>
-                  <Typography component="span" sx={{ color: '#ef4444' }}>e</Typography>
-                </Typography>
-                <Typography 
-                  variant="body2" 
-                  sx={{ 
-                    color: 'text.secondary',
-                    '&:hover': { color: '#9333ea' } 
-                  }}
-                >
-                  Continue with Google
-                </Typography>
-              </Box>
+              Continue with Google
             </Button>
 
             <Box sx={{ textAlign: 'center' }}>
@@ -187,13 +145,9 @@ const AuthComponent: React.FC = () => {
                 {isLogin ? "Don't have an account? " : "Already have an account? "}
               </Typography>
               <Button
-                sx={{ 
-                  color: '#9333ea', 
-                  p: 0, 
-                  minWidth: 'auto', 
-                  '&:hover': { bgcolor: 'transparent', textDecoration: 'underline' } 
-                }}
+                color="primary"
                 onClick={() => setIsLogin(!isLogin)}
+                sx={{ textTransform: 'none' }}
               >
                 {isLogin ? 'Sign Up' : 'Sign In'}
               </Button>
