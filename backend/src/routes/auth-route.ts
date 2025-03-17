@@ -127,6 +127,7 @@ const authRoutes = (): Router => {
   const router = express.Router();
 
   router.post("/register", authController.register);
+  router.post("/google", authController.googleSignin);
   router.post("/login", authController.login);
   router.post("/logout", authenticate, authController.logout);
   router.post("/refreshToken", authController.refreshToken);

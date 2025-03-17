@@ -2,8 +2,37 @@ import { Request, Response, NextFunction } from "express";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import config from "../config/config";
-import { User } from "../models/user";
+import { User, UserDocument } from "../models/user";
 import ApiError from "../common/api-error";
+import {OAuth2Client} from 'google-auth-library';
+
+const client = new OAuth2Client();
+const googleSignin = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try{
+    const ticket = await client.verifyIdToken({
+      idToken: req.body.credential,
+      audience: config.googleClientId,  
+    });
+    const payload = ticket.getPayload();
+    const email = payload?.email;
+    console.log(email)
+    if (email != null){
+      let user = await User.findOne({ 'email': email });
+      if (user == null){
+        user = new User({
+          email: email,
+          password: 'google',
+          username: payload?.name,
+        });
+        const newUser = await user.save();
+        const tokens = await generateTokens(newUser)
+        res.status(config.statusCode.SUCCESS).json(tokens);
+      }
+    }
+  }catch(error){
+    next(error);
+  }
+}
 
 const register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const { email, username, password } = req.body;
@@ -33,6 +62,32 @@ const register = async (req: Request, res: Response, next: NextFunction): Promis
   }
 };
 
+const generateTokens = async (user: UserDocument) => {
+  const accessToken = await jwt.sign(
+    { '_id': user._id },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: process.env.JWT_TOKEN_EXPIRATION }
+  );
+
+  const refreshToken = await jwt.sign(
+    { '_id': user._id },
+    process.env.REFRESH_TOKEN_SECRET
+  );
+
+  if (!user.tokens) {
+    user.tokens = [refreshToken];
+  } else {
+    user.tokens.push(refreshToken);
+  }
+
+  await user.save();
+  
+  return {
+    'accessToken': accessToken,
+    'refreshToken': refreshToken
+  };
+}
+
 const login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const { email, password } = req.body;
 
@@ -51,25 +106,9 @@ const login = async (req: Request, res: Response, next: NextFunction): Promise<v
       throw new ApiError(config.statusCode.BAD_REQUEST, "Bad email or password.");
     }
 
-    const accessToken = await jwt.sign(
-      { '_id': user._id },
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: process.env.JWT_TOKEN_EXPIRATION }
-    );
+    const tokens = await generateTokens(user)
 
-    const refreshToken = await jwt.sign(
-      { '_id': user._id },
-      process.env.REFRESH_TOKEN_SECRET
-    );
-
-    if (!user.tokens) {
-      user.tokens = [refreshToken];
-    } else {
-      user.tokens.push(refreshToken);
-    }
-
-    await user.save();
-    res.status(config.statusCode.SUCCESS).json({ accessToken, refreshToken });
+    res.status(config.statusCode.SUCCESS).json(tokens);
   } catch (error) {
     next(error);
   }
@@ -157,6 +196,7 @@ const refreshToken = async (req: Request, res: Response, next: NextFunction): Pr
 
 export default {
   register,
+  googleSignin,
   login,
   logout,
   refreshToken,

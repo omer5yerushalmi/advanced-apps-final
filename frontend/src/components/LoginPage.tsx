@@ -10,12 +10,15 @@ import InputAdornment from '@mui/material/InputAdornment';
 import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
 import PersonIcon from '@mui/icons-material/Person';
-import GoogleIcon from '@mui/icons-material/Google';
+import { GoogleLogin, CredentialResponse} from '@react-oauth/google';
+import { register, googleSignin, IUser, login} from '../services/user-services'
+import { Email } from '@mui/icons-material';
+
 
 interface FormData {
   email: string;
   password: string;
-  name: string;
+  username: string;
 }
 
 const AuthComponent: React.FC = () => {
@@ -23,19 +26,55 @@ const AuthComponent: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
     email: '',
     password: '',
-    name: ''
+    username: ''
   });
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // Handle form submission here
     console.log('Form submitted:', formData);
+
+    if (isLogin){
+      console.log("handle login")
+      try{
+        const user: IUser = {
+          email: formData?.email,
+          password: formData?.password
+        }
+        const res = await login(user)
+        console.log(res)
+      } catch(e){
+        console.log(e)
+      }
+    }else{
+      console.log("handle register")
+      try{
+        const user: IUser = {
+          email: formData?.email,
+          password: formData?.password,
+          username: formData?.username
+        }
+        const res = await register(user)
+        console.log(res)
+      } catch(e){
+        console.log(e)
+      }
+    }
   };
 
-  const handleGoogleLogin = () => {
-    // Implement Google login logic here
-    console.log('Google login clicked');
-  };
+  const onGoogleLoginSuccess = async (credentialResponse: CredentialResponse) => {
+    console.log(credentialResponse)
+    try{
+      const res = await googleSignin(credentialResponse)
+      console.log(res)
+    } catch(e){
+      console.log(e)
+    }
+  }
+
+  const onGoogleLoginError = () => {
+    console.log("Google login failed")
+  }
 
   return (
     <Box
@@ -59,9 +98,9 @@ const AuthComponent: React.FC = () => {
             {!isLogin && (
               <TextField
                 fullWidth
-                label="Full Name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                label="Username"
+                value={formData.username}
+                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -128,18 +167,9 @@ const AuthComponent: React.FC = () => {
                 OR
               </Typography>
             </Box>
-
-            <Button
-              type="button"
-              fullWidth
-              variant="outlined"
-              onClick={handleGoogleLogin}
-              startIcon={<GoogleIcon />}
-              sx={{ py: 1 }}
-            >
-              Continue with Google
-            </Button>
-
+            <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+              <GoogleLogin logo_alignment='center' onSuccess={onGoogleLoginSuccess} onError={onGoogleLoginError} />
+            </div>    
             <Box sx={{ textAlign: 'center' }}>
               <Typography variant="body2" sx={{ color: 'text.secondary', display: 'inline' }}>
                 {isLogin ? "Don't have an account? " : "Already have an account? "}
