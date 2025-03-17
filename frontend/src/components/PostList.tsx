@@ -122,9 +122,6 @@ const PostList = () => {
                                         <IconButton sx={{ p: 1, mr: 1 }}>
                                             <ChatBubbleOutline sx={{ fontSize: 28 }} />
                                         </IconButton>
-                                        <IconButton sx={{ p: 1 }}>
-                                            <SendOutlined sx={{ fontSize: 28 }} />
-                                        </IconButton>
                                     </Box>
 
                                     {/* Post Content */}
