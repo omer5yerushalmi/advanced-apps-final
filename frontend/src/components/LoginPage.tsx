@@ -10,8 +10,8 @@ import InputAdornment from '@mui/material/InputAdornment';
 import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
 import PersonIcon from '@mui/icons-material/Person';
-import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
-import { register, googleSignin, IUser, login } from '../services/user-services'
+import { GoogleLogin, CredentialResponse} from '@react-oauth/google';
+import { register, googleSignin, IUser, login} from '../services/user-services'
 
 
 interface FormData {
@@ -20,7 +20,11 @@ interface FormData {
   username: string;
 }
 
-const AuthComponent: React.FC = () => {
+interface AuthProps {
+  setIsAuthenticated: (auth: boolean) => void;
+}
+
+const AuthComponent: React.FC<AuthProps> = ({ setIsAuthenticated }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState<FormData>({
     email: '',
@@ -42,7 +46,11 @@ const AuthComponent: React.FC = () => {
         }
         const res = await login(user)
         console.log(res)
-      } catch (e) {
+        if (res?.accessToken) {
+          localStorage.setItem('accessToken', res.accessToken);
+          setIsAuthenticated(true);
+        }
+      } catch(e){
         console.log(e)
       }
     } else {
