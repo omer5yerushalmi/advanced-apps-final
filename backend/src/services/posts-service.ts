@@ -2,13 +2,15 @@ import { Post, PostDocument } from "../models/post";
 import mongoose from "mongoose";
 
 interface PostData {
-  sender: string;
-  content: string;
+  userId: string;
+  userName: string;
+  text: string;
+  imageUrl?: string;
 }
 
-const getAllPosts = async (sender?: string): Promise<PostDocument[]> => {
-  if (sender) {
-    return await Post.find({ sender });
+const getAllPosts = async (userId?: string): Promise<PostDocument[]> => {
+  if (userId) {
+    return await Post.find({ userId });
   }
   return await Post.find({});
 };
@@ -21,14 +23,20 @@ const getPostById = async (id: string): Promise<PostDocument | undefined> => {
 };
 
 const createPost = async (postData: PostData): Promise<PostDocument> => {
-  return await Post.create(postData);
+  const now = new Date().toISOString();
+  return await Post.create({
+    ...postData,
+    createdAt: now,
+    updatedAt: now
+  });
 };
 
-const updatePost = async (id: string, content: string): Promise<PostDocument | undefined> => {
+const updatePost = async (id: string, text: string): Promise<PostDocument | undefined> => {
   const post = await getPostById(id);
 
   if (post) {
-    post.content = content;
+    post.text = text;
+    post.updatedAt = new Date().toISOString();
     await post.save();
   }
 

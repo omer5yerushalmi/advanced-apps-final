@@ -42,13 +42,16 @@ describe('Posts', () => {
                 .post('/api/posts')
                 .set('Authorization', `Bearer ${accessToken}`)
                 .send({
-                    content: 'Test post',
-                    sender: 'test@example.com'
+                    userId: '1',
+                    userName: 'test_user',
+                    text: 'Test post'
                 });
 
             expect(response.status).toBe(200);
             expect(response.body).toHaveProperty('_id');
-            expect(response.body).toHaveProperty('content', 'Test post');
+            expect(response.body).toHaveProperty('text', 'Test post');
+            expect(response.body).toHaveProperty('userId', '1');
+            expect(response.body).toHaveProperty('userName', 'test_user');
         });
 
         it('should fail with incomplete data', async () => {
@@ -74,14 +77,14 @@ describe('Posts', () => {
     });
 
     describe('PUT /posts/:id', () => {
-        it('should fail without content', async () => {
+        it('should fail without text', async () => {
             const response = await request(app)
                 .put('/api/posts/123')
                 .set('Authorization', `Bearer ${accessToken}`)
                 .send({});
 
             expect(response.status).toBe(400);
-            expect(response.body).toBe('{content} is required.');
+            expect(response.body).toBe('{text} is required.');
         });
     });
 

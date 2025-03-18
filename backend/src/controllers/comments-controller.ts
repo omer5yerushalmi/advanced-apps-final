@@ -4,20 +4,28 @@ import config from "../config/config";
 
 const createComment = async (req: Request, res: Response): Promise<void> => {
   try {
+    const { post, userId, userName, content } = req.body;
+
+    // Check if all required fields are present
+    if (!post || !userId || !userName || !content) {
+      res.status(config.statusCode.BAD_REQUEST).json("Incomplete comment data provided.");
+      return;
+    }
+
     const commentData = {
-      post: req.body.post,
-      sender: req.body.sender,
-      content: req.body.content,
+      post,
+      userId,
+      userName,
+      content,
     };
 
-    if (Object.values(commentData).every(Boolean)) {
-      const data = await commentsService.createComment(commentData);
-      res
-        .status(data ? config.statusCode.SUCCESS : config.statusCode.NOT_FOUND)
-        .json(data);
-    } else {
-      res.status(config.statusCode.BAD_REQUEST).json("Incomplete comment data provided.");
+    const data = await commentsService.createComment(commentData);
+    if (!data) {
+      res.status(config.statusCode.NOT_FOUND).json("Post not found");
+      return;
     }
+
+    res.status(config.statusCode.SUCCESS).json(data);
   } catch (error) {
     res.status(config.statusCode.INTERNAL_SERVER_ERROR).json((error as Error).message);
   }

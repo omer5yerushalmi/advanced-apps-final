@@ -10,7 +10,8 @@ import authenticate from "../common/auth_middleware";
  *       type: object
  *       required:
  *         - post
- *         - sender
+ *         - userId
+ *         - userName
  *         - content
  *       properties:
  *         _id:
@@ -19,9 +20,12 @@ import authenticate from "../common/auth_middleware";
  *         post:
  *           type: string
  *           description: ID of the related post
- *         sender:
+ *         userId:
  *           type: string
- *           description: Email of the comment sender
+ *           description: ID of the user who created the comment
+ *         userName:
+ *           type: string
+ *           description: Name of the user who created the comment
  *         content:
  *           type: string
  *           description: Content of the comment
@@ -44,12 +48,15 @@ import authenticate from "../common/auth_middleware";
  *             type: object
  *             required:
  *               - post
- *               - sender
+ *               - userId
+ *               - userName
  *               - content
  *             properties:
  *               post:
  *                 type: string
- *               sender:
+ *               userId:
+ *                 type: string
+ *               userName:
  *                 type: string
  *               content:
  *                 type: string

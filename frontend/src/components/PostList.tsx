@@ -7,32 +7,58 @@ import {
     Box,
     Container,
     Avatar,
+    CircularProgress,
+    Alert,
 } from '@mui/material';
 import {
     FavoriteBorder,
     ChatBubbleOutline,
 } from '@mui/icons-material';
 import { Post } from '../types/Post';
-import { mockPosts } from '../mockData/postData';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
 const PostList = () => {
-    // New state variables for pagination
+    const [allPosts, setAllPosts] = useState<Post[]>([]); // Store all posts
     const [displayedPosts, setDisplayedPosts] = useState<Post[]>([]);
     const [hasMore, setHasMore] = useState(true);
     const [page, setPage] = useState(1);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const postsPerPage = 1;
 
-    // Initialize first page
+    // Fetch all posts initially
     useEffect(() => {
-        const initialPosts = mockPosts.slice(0, postsPerPage);
-        setDisplayedPosts(initialPosts);
-        setHasMore(mockPosts.length > postsPerPage);
+        fetchAllPosts();
     }, []);
 
-    // Function to load more posts
+    const fetchAllPosts = async () => {
+        try {
+            setLoading(true);
+            const response = await fetch(`http://localhost:3010/api/posts`, {
+                headers: {
+                    'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2N2Q5YTU5NmQ3MTI1MzI0ZWU0MTU5ODAiLCJpYXQiOjE3NDIzMTY5NTQsImV4cCI6MTc0MjM0OTM1NH0.ieJF8pXyeAEtlXaVaK52RdOJChncqTAV4JXKczAnC_o`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch posts');
+            }
+            const data = await response.json();
+            setAllPosts(data);
+
+            // Set initial displayed posts
+            const initialPosts = data.slice(0, postsPerPage);
+            setDisplayedPosts(initialPosts);
+            setHasMore(data.length > postsPerPage);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'An error occurred');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const fetchMorePosts = () => {
-        const nextPosts = mockPosts.slice(
+        const nextPosts = allPosts.slice(
             page * postsPerPage,
             (page + 1) * postsPerPage
         );
@@ -42,9 +68,19 @@ const PostList = () => {
             return;
         }
 
-        setDisplayedPosts([...displayedPosts, ...nextPosts]);
+        setDisplayedPosts(prev => [...prev, ...nextPosts]);
         setPage(page + 1);
     };
+
+    if (error) {
+        return (
+            <Container>
+                <Alert severity="error" sx={{ mt: 2 }}>
+                    {error}
+                </Alert>
+            </Container>
+        );
+    }
 
     return (
         <Box sx={{ bgcolor: '#FAFAFA', minHeight: '100vh' }}>
@@ -53,8 +89,20 @@ const PostList = () => {
                     dataLength={displayedPosts.length}
                     next={fetchMorePosts}
                     hasMore={hasMore}
-                    loader={<Box sx={{ height: '100vh' }} />}
-                    endMessage={<Box sx={{ height: '100vh' }} />}
+                    loader={
+                        <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
+                            <CircularProgress />
+                        </Box>
+                    }
+                    endMessage={
+                        <Typography
+                            textAlign="center"
+                            color="text.secondary"
+                            sx={{ my: 2 }}
+                        >
+                            No more posts to load.
+                        </Typography>
+                    }
                     style={{ overflow: 'hidden' }}
                 >
                     {displayedPosts.map((post, index) => (
@@ -153,6 +201,12 @@ const PostList = () => {
                         </React.Fragment>
                     ))}
                 </InfiniteScroll>
+
+                {loading && displayedPosts.length === 0 && (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+                        <CircularProgress />
+                    </Box>
+                )}
             </Container>
         </Box>
     );

@@ -4,8 +4,8 @@ import config from "../config/config";
 
 const getAllPosts = async (req: Request, res: Response): Promise<void> => {
   try {
-    const sender = req.query.sender as string;
-    const data = await postsService.getAllPosts(sender);
+    const userId = req.query.userId as string;
+    const data = await postsService.getAllPosts(userId);
     res.status(config.statusCode.SUCCESS).json(data);
   } catch (error) {
     res.status(config.statusCode.INTERNAL_SERVER_ERROR).json((error as Error).message);
@@ -27,11 +27,13 @@ const getPostById = async (req: Request, res: Response): Promise<void> => {
 const createPost = async (req: Request, res: Response): Promise<void> => {
   try {
     const postData = {
-      sender: req.body.sender,
-      content: req.body.content,
+      userId: req.body.userId,
+      userName: req.body.userName,
+      text: req.body.text,
+      imageUrl: req.body.imageUrl
     };
 
-    if (Object.values(postData).every(Boolean)) {
+    if (postData.userId && postData.userName && postData.text) {
       const data = await postsService.createPost(postData);
       res.status(config.statusCode.SUCCESS).json(data);
     } else {
@@ -54,13 +56,13 @@ const deletePost = async (req: Request, res: Response): Promise<void> => {
 
 const updatePost = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { content } = req.body;
+    const { text } = req.body;
     const id = req.params.id;
 
-    if (!content) {
-      res.status(config.statusCode.BAD_REQUEST).json("{content} is required.");
+    if (!text) {
+      res.status(config.statusCode.BAD_REQUEST).json("{text} is required.");
     } else {
-      const data = await postsService.updatePost(id, content);
+      const data = await postsService.updatePost(id, text);
       res.status(config.statusCode.SUCCESS).json(data);
     }
   } catch (error) {
