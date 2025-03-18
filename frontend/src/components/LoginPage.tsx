@@ -10,9 +10,8 @@ import InputAdornment from '@mui/material/InputAdornment';
 import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
 import PersonIcon from '@mui/icons-material/Person';
-import { GoogleLogin, CredentialResponse} from '@react-oauth/google';
-import { register, googleSignin, IUser, login} from '../services/user-services'
-import { Email } from '@mui/icons-material';
+import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
+import { register, googleSignin, IUser, login } from '../services/user-services'
 
 
 interface FormData {
@@ -34,21 +33,21 @@ const AuthComponent: React.FC = () => {
     // Handle form submission here
     console.log('Form submitted:', formData);
 
-    if (isLogin){
+    if (isLogin) {
       console.log("handle login")
-      try{
+      try {
         const user: IUser = {
           email: formData?.email,
           password: formData?.password
         }
         const res = await login(user)
         console.log(res)
-      } catch(e){
+      } catch (e) {
         console.log(e)
       }
-    }else{
+    } else {
       console.log("handle register")
-      try{
+      try {
         const user: IUser = {
           email: formData?.email,
           password: formData?.password,
@@ -56,7 +55,7 @@ const AuthComponent: React.FC = () => {
         }
         const res = await register(user)
         console.log(res)
-      } catch(e){
+      } catch (e) {
         console.log(e)
       }
     }
@@ -64,10 +63,10 @@ const AuthComponent: React.FC = () => {
 
   const onGoogleLoginSuccess = async (credentialResponse: CredentialResponse) => {
     console.log(credentialResponse)
-    try{
+    try {
       const res = await googleSignin(credentialResponse)
       console.log(res)
-    } catch(e){
+    } catch (e) {
       console.log(e)
     }
   }
@@ -110,7 +109,7 @@ const AuthComponent: React.FC = () => {
                 }}
               />
             )}
-            
+
             <TextField
               fullWidth
               type="email"
@@ -153,13 +152,13 @@ const AuthComponent: React.FC = () => {
 
             <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center', my: 1 }}>
               <Divider sx={{ width: '100%' }} />
-              <Typography 
-                variant="body2" 
-                sx={{ 
-                  position: 'absolute', 
-                  left: '50%', 
-                  transform: 'translateX(-50%)', 
-                  bgcolor: 'background.paper', 
+              <Typography
+                variant="body2"
+                sx={{
+                  position: 'absolute',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  bgcolor: 'background.paper',
                   px: 1,
                   color: 'text.secondary'
                 }}
@@ -169,7 +168,7 @@ const AuthComponent: React.FC = () => {
             </Box>
             <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
               <GoogleLogin logo_alignment='center' onSuccess={onGoogleLoginSuccess} onError={onGoogleLoginError} />
-            </div>    
+            </div>
             <Box sx={{ textAlign: 'center' }}>
               <Typography variant="body2" sx={{ color: 'text.secondary', display: 'inline' }}>
                 {isLogin ? "Don't have an account? " : "Already have an account? "}

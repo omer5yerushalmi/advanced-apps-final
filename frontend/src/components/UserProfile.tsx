@@ -1,8 +1,7 @@
 import React from 'react';
-import { Box, Avatar, Typography, Paper, Container, IconButton } from '@mui/material';
+import { Box, Avatar, Typography, Paper, Container } from '@mui/material';
 import moment from 'moment';
 import { User } from '../types/User';
-import { ArrowBack } from '@mui/icons-material';
 
 interface UserProfileProps {
     user: User;
