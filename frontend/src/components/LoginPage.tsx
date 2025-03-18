@@ -74,6 +74,10 @@ const AuthComponent: React.FC<AuthProps> = ({ setIsAuthenticated }) => {
     try {
       const res = await googleSignin(credentialResponse)
       console.log(res)
+      if (res?.accessToken) {
+        localStorage.setItem('accessToken', res.accessToken);
+        setIsAuthenticated(true);
+      }
     } catch (e) {
       console.log(e)
     }

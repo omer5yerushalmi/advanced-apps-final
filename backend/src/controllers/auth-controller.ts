@@ -25,7 +25,10 @@ const googleSignin = async (req: Request, res: Response, next: NextFunction): Pr
           username: payload?.name,
         });
         const newUser = await user.save();
-        const tokens = await generateTokens(newUser)
+        const tokens = await generateTokens(newUser);
+        res.status(config.statusCode.SUCCESS).json(tokens);
+      } else{
+        const tokens = await generateTokens(user);
         res.status(config.statusCode.SUCCESS).json(tokens);
       }
     }
