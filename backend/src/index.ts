@@ -18,6 +18,7 @@ app.use("/api/posts", postsRoutes());
 app.use("/api/comments", commentsRoutes());
 app.use("/api/users", usersRoutes());
 app.use("/api/auth", authRoutes());
+app.use("/public", express.static("public"));
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction): void => {
   errorHandler(err, req, res, next);
