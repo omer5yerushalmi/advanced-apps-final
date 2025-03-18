@@ -4,7 +4,7 @@ dotenv.config();
 
 const config = {
   backend: {
-    port: process.env.BACKEND_PORT || 3000,
+    port: process.env.BACKEND_PORT || 3010,
   },
   mongoDB: {
     uri: process.env.MONGO_URI || "mongodb://root:dev@127.0.0.1/?authSource=admin",
@@ -18,6 +18,7 @@ const config = {
     FORBIDDEN: 403
   },
   nodeEnv: process.env.NODE_ENV || 'development',
+  googleClientId: process.env.GOOGLE_CLIENT_ID,
 };
 
 export default config;
