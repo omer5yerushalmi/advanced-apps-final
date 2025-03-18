@@ -11,7 +11,6 @@ import {
 import {
     FavoriteBorder,
     ChatBubbleOutline,
-    SendOutlined,
 } from '@mui/icons-material';
 import { Post } from '../types/Post';
 import { mockPosts } from '../mockData/postData';
