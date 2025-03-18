@@ -4,7 +4,8 @@ import mongoose from "mongoose";
 
 interface CommentData {
   post: string;
-  sender: string;
+  userId: string;
+  userName: string;
   content: string;
 }
 

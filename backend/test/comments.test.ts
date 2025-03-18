@@ -38,8 +38,9 @@ beforeAll(async () => {
         .post('/api/posts')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
-            content: 'Test post',
-            sender: 'test@example.com'
+            userId: '1',
+            userName: 'test_user',
+            text: 'Test post'
         });
 
     postId = postResponse.body._id;
@@ -57,13 +58,16 @@ describe('Comments', () => {
                 .set('Authorization', `Bearer ${accessToken}`)
                 .send({
                     post: postId,
-                    content: 'Test comment',
-                    sender: 'test@example.com'
+                    userId: '1',
+                    userName: 'test_user',
+                    content: 'Test comment'
                 });
 
             expect(response.status).toBe(200);
             expect(response.body).toHaveProperty('_id');
             expect(response.body).toHaveProperty('content', 'Test comment');
+            expect(response.body).toHaveProperty('userId', '1');
+            expect(response.body).toHaveProperty('userName', 'test_user');
         });
 
         it('should fail with incomplete data', async () => {
@@ -71,7 +75,8 @@ describe('Comments', () => {
                 .post('/api/comments')
                 .set('Authorization', `Bearer ${accessToken}`)
                 .send({
-                    // Missing required fields
+                    content: 'Test comment'
+                    // Missing other required fields
                 });
 
             expect(response.status).toBe(400);

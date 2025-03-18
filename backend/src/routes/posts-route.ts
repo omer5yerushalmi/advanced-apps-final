@@ -9,21 +9,37 @@ import authenticate from "../common/auth_middleware";
  *     Post:
  *       type: object
  *       required:
- *         - sender
- *         - content
+ *         - userId
+ *         - userName
+ *         - text
  *       properties:
  *         _id:
  *           type: string
  *           description: Auto-generated MongoDB ID
- *         sender:
+ *         userId:
  *           type: string
- *           description: Email of the post sender
- *         content:
+ *           description: ID of the user who created the post
+ *         userName:
+ *           type: string
+ *           description: Name of the user who created the post
+ *         text:
  *           type: string
  *           description: Content of the post
+ *         imageUrl:
+ *           type: string
+ *           description: Optional URL of the post image
+ *         createdAt:
+ *           type: string
+ *           description: Post creation timestamp
+ *         updatedAt:
+ *           type: string
+ *           description: Post last update timestamp
  *       example:
- *         sender: 'user@example.com'
- *         content: 'This is a sample post'
+ *         userId: '1'
+ *         userName: 'john_doe'
+ *         text: 'This is a sample post'
+ *         createdAt: '2024-03-20T10:00:00Z'
+ *         updatedAt: '2024-03-20T10:00:00Z'
  * 
  * @swagger
  * /api/posts:
@@ -34,10 +50,10 @@ import authenticate from "../common/auth_middleware";
  *       - bearerAuth: []
  *     parameters:
  *       - in: query
- *         name: sender
+ *         name: userId
  *         schema:
  *           type: string
- *         description: Filter posts by sender email
+ *         description: Filter posts by user ID
  *     responses:
  *       200:
  *         description: List of posts
@@ -56,12 +72,17 @@ import authenticate from "../common/auth_middleware";
  *           schema:
  *             type: object
  *             required:
- *               - content
- *               - sender
+ *               - userId
+ *               - userName
+ *               - text
  *             properties:
- *               content:
+ *               userId:
  *                 type: string
- *               sender:
+ *               userName:
+ *                 type: string
+ *               text:
+ *                 type: string
+ *               imageUrl:
  *                 type: string
  *     responses:
  *       200:
@@ -89,7 +110,7 @@ import authenticate from "../common/auth_middleware";
  *         description: Post not found
  * 
  *   put:
- *     summary: Update post content
+ *     summary: Update post text
  *     tags: [Posts]
  *     security:
  *       - bearerAuth: []
@@ -106,13 +127,17 @@ import authenticate from "../common/auth_middleware";
  *           schema:
  *             type: object
  *             required:
- *               - content
+ *               - text
  *             properties:
- *               content:
+ *               text:
  *                 type: string
  *     responses:
  *       200:
  *         description: Post updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Post'
  *       400:
  *         description: Bad request
  * 
