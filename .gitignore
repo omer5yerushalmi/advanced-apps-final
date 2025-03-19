@@ -33,3 +33,5 @@ coverage/
 # Dependencies
 package-lock.json
 yarn.lock
+
+backend/public/*

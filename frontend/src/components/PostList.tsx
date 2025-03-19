@@ -36,7 +36,7 @@ const PostList = () => {
             setLoading(true);
             const response = await fetch(`http://localhost:3010/api/posts`, {
                 headers: {
-                    'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2N2Q5YTU5NmQ3MTI1MzI0ZWU0MTU5ODAiLCJpYXQiOjE3NDIzMTY5NTQsImV4cCI6MTc0MjM0OTM1NH0.ieJF8pXyeAEtlXaVaK52RdOJChncqTAV4JXKczAnC_o`
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
                 }
             });
 

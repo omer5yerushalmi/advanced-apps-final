@@ -4,6 +4,7 @@ import PostList from './PostList';
 import UserProfile from './UserProfile';
 import { mockUser } from '../mockData/userData';
 import Navigation from './Navigation';
+import CreatePostModal from './CreatePostModal';
 
 const HomePage: React.FC = () => {
     const [showProfile, setShowProfile] = useState(false);
@@ -22,6 +23,10 @@ const HomePage: React.FC = () => {
         setShowCreatePost(true);
     };
 
+    const handlePostCreated = () => {
+        setShowCreatePost(false);
+    };
+
     return (
         <Box>
             <Navigation
@@ -32,12 +37,17 @@ const HomePage: React.FC = () => {
             <Box sx={{ pt: 8, pb: 7 }}>
                 {showProfile ? (
                     <UserProfile user={mockUser} onBack={() => setShowProfile(false)} />
-                ) : showCreatePost ? (
-                    <PostList /> // TODO: Implement create post form
                 ) : (
                     <PostList />
                 )}
             </Box>
+            <CreatePostModal
+                isOpen={showCreatePost}
+                onClose={() => setShowCreatePost(false)}
+                userId="your-user-id"
+                userName="your-username"
+                onPostCreated={handlePostCreated}
+            />
         </Box>
     );
 };
