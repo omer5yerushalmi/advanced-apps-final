@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Box } from '@mui/material';
 import PostList from './PostList';
 import UserProfile from './UserProfile';
@@ -9,6 +9,7 @@ import CreatePostModal from './CreatePostModal';
 const HomePage: React.FC = () => {
     const [showProfile, setShowProfile] = useState(false);
     const [showCreatePost, setShowCreatePost] = useState(false);
+    const postListRef = useRef<{ refreshPosts: () => void }>(null);
 
     const handleProfileClick = () => {
         setShowProfile(true);
@@ -25,6 +26,7 @@ const HomePage: React.FC = () => {
 
     const handlePostCreated = () => {
         setShowCreatePost(false);
+        postListRef.current?.refreshPosts();
     };
 
     return (
@@ -38,7 +40,7 @@ const HomePage: React.FC = () => {
                 {showProfile ? (
                     <UserProfile user={mockUser} onBack={() => setShowProfile(false)} />
                 ) : (
-                    <PostList />
+                    <PostList ref={postListRef} />
                 )}
             </Box>
             <CreatePostModal

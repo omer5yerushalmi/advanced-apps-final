@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import {
     Card,
     CardMedia,
@@ -17,7 +17,7 @@ import {
 import { Post } from '../types/Post';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
-const PostList = () => {
+const PostList = forwardRef((props, ref) => {
     const [allPosts, setAllPosts] = useState<Post[]>([]); // Store all posts
     const [displayedPosts, setDisplayedPosts] = useState<Post[]>([]);
     const [hasMore, setHasMore] = useState(true);
@@ -71,6 +71,18 @@ const PostList = () => {
         setDisplayedPosts(prev => [...prev, ...nextPosts]);
         setPage(page + 1);
     };
+
+    // Add this function to expose the refresh capability
+    const refreshPosts = () => {
+        setPage(1);
+        setDisplayedPosts([]);
+        fetchAllPosts();
+    };
+
+    // Expose the refresh method
+    useImperativeHandle(ref, () => ({
+        refreshPosts
+    }));
 
     if (error) {
         return (
@@ -210,6 +222,6 @@ const PostList = () => {
             </Container>
         </Box>
     );
-};
+});
 
 export default PostList; 

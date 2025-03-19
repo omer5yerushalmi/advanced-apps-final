@@ -58,21 +58,20 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
         setIsLoading(true);
 
         try {
-            let imageUrl;
+            const formData = new FormData();
+            formData.append('userId', userId);
+            formData.append('userName', userName);
+            formData.append('text', text);
 
             if (file) {
-                const formData = new FormData();
-                formData.append('file', file);
-
-                const uploadResponse = await axios.post('/api/file', formData);
-                imageUrl = uploadResponse.data.url;
+                formData.append('image', file);
             }
 
-            await axios.post('/api/posts', {
-                userId,
-                userName,
-                text,
-                imageUrl
+            await axios.post('http://localhost:3010/api/posts', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                }
             });
 
             onPostCreated?.();
