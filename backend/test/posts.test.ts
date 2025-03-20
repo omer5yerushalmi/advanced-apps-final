@@ -63,6 +63,46 @@ describe('Posts', () => {
             expect(response.status).toBe(400);
             expect(response.body).toBe('Incomplete post data provided.');
         });
+
+        test("create post with image", async () => {
+            const filePath = `${__dirname}/default.jpg`;
+
+            try {
+                const response = await request(app)
+                    .post("/api/posts")
+                    .field('userId', 'testUser123')
+                    .field('userName', 'Test User')
+                    .field('text', 'Post with image')
+                    .attach('image', filePath)
+                    .set('Authorization', `Bearer ${accessToken}`);
+
+                expect(response.statusCode).toEqual(200);
+                expect(response.body).toHaveProperty('imageUrl');
+                expect(response.body.imageUrl).toContain('public');
+                expect(response.body.text).toEqual('Post with image');
+
+                // Verify the image is accessible
+                const imageUrl = response.body.imageUrl.replace(/^.*\/\/[^/]+/, '');
+                const imageRes = await request(app).get(imageUrl);
+                expect(imageRes.statusCode).toEqual(200);
+            } catch (err) {
+                console.log(err);
+                expect(1).toEqual(2);
+            }
+        });
+
+        test("create post without image", async () => {
+            const response = await request(app)
+                .post("/api/posts")
+                .field('userId', 'testUser123')
+                .field('userName', 'Test User')
+                .field('text', 'Post without image')
+                .set('Authorization', `Bearer ${accessToken}`);
+
+            expect(response.statusCode).toEqual(200);
+            expect(response.body.imageUrl).toBeUndefined();
+            expect(response.body.text).toEqual('Post without image');
+        });
     });
 
     describe('GET /posts', () => {

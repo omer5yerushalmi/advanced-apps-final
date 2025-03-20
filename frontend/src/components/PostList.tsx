@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import {
     Card,
     CardMedia,
@@ -17,7 +17,7 @@ import {
 import { Post } from '../types/Post';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
-const PostList = () => {
+const PostList = forwardRef((props, ref) => {
     const [allPosts, setAllPosts] = useState<Post[]>([]); // Store all posts
     const [displayedPosts, setDisplayedPosts] = useState<Post[]>([]);
     const [hasMore, setHasMore] = useState(true);
@@ -36,7 +36,7 @@ const PostList = () => {
             setLoading(true);
             const response = await fetch(`http://localhost:3010/api/posts`, {
                 headers: {
-                    'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2N2Q5YTU5NmQ3MTI1MzI0ZWU0MTU5ODAiLCJpYXQiOjE3NDIzMTY5NTQsImV4cCI6MTc0MjM0OTM1NH0.ieJF8pXyeAEtlXaVaK52RdOJChncqTAV4JXKczAnC_o`
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
                 }
             });
 
@@ -71,6 +71,18 @@ const PostList = () => {
         setDisplayedPosts(prev => [...prev, ...nextPosts]);
         setPage(page + 1);
     };
+
+    // Add this function to expose the refresh capability
+    const refreshPosts = () => {
+        setPage(1);
+        setDisplayedPosts([]);
+        fetchAllPosts();
+    };
+
+    // Expose the refresh method
+    useImperativeHandle(ref, () => ({
+        refreshPosts
+    }));
 
     if (error) {
         return (
@@ -210,6 +222,6 @@ const PostList = () => {
             </Container>
         </Box>
     );
-};
+});
 
 export default PostList; 

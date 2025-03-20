@@ -24,21 +24,31 @@ const getPostById = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+const base = "http://127.0.0.1:3010";
+
 const createPost = async (req: Request, res: Response): Promise<void> => {
   try {
+    const { userId, userName, text } = req.body;
+
+    if (!userId || !userName || !text) {
+      res.status(config.statusCode.BAD_REQUEST).json("Incomplete post data provided.");
+      return;
+    }
+
+    let imageUrl: string | undefined;
+    if (req.file) {
+      imageUrl = `${base}/${req.file.path}`;
+    }
+
     const postData = {
-      userId: req.body.userId,
-      userName: req.body.userName,
-      text: req.body.text,
-      imageUrl: req.body.imageUrl
+      userId,
+      userName,
+      text,
+      imageUrl
     };
 
-    if (postData.userId && postData.userName && postData.text) {
-      const data = await postsService.createPost(postData);
-      res.status(config.statusCode.SUCCESS).json(data);
-    } else {
-      res.status(config.statusCode.BAD_REQUEST).json("Incomplete post data provided.");
-    }
+    const data = await postsService.createPost(postData);
+    res.status(config.statusCode.SUCCESS).json(data);
   } catch (error) {
     res.status(config.statusCode.INTERNAL_SERVER_ERROR).json((error as Error).message);
   }

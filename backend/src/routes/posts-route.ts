@@ -1,6 +1,22 @@
 import express, { Router } from "express";
 import postsController from "../controllers/posts-controller";
 import authenticate from "../common/auth_middleware";
+import multer from "multer";
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'public/')
+  },
+  filename: function (req, file, cb) {
+    const ext = file.originalname.split('.')
+      .filter(Boolean)
+      .slice(1)
+      .join('.')
+    cb(null, Date.now() + "." + ext)
+  }
+});
+
+const upload = multer({ storage: storage });
 
 /**
  * @swagger
@@ -68,7 +84,7 @@ import authenticate from "../common/auth_middleware";
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             required:
@@ -82,8 +98,9 @@ import authenticate from "../common/auth_middleware";
  *                 type: string
  *               text:
  *                 type: string
- *               imageUrl:
+ *               image:
  *                 type: string
+ *                 format: binary
  *     responses:
  *       200:
  *         description: Post created successfully
@@ -166,7 +183,7 @@ const postsRoutes = (): Router => {
   router.get("/:id", authenticate, postsController.getPostById);
   router.put("/:id", authenticate, postsController.updatePost);
   router.delete("/:id", authenticate, postsController.deletePost);
-  router.post("/", authenticate, postsController.createPost);
+  router.post("/", authenticate, upload.single('image'), postsController.createPost);
 
   return router;
 };
