@@ -6,7 +6,11 @@ import { mockUser } from '../mockData/userData';
 import Navigation from './Navigation';
 import CreatePostModal from './CreatePostModal';
 
-const HomePage: React.FC = () => {
+interface HomePageProps {
+    userEmail: string | null;
+}
+
+const HomePage: React.FC<HomePageProps> = ({ userEmail }) => {
     const [showProfile, setShowProfile] = useState(false);
     const [showCreatePost, setShowCreatePost] = useState(false);
     const postListRef = useRef<{ refreshPosts: () => void }>(null);

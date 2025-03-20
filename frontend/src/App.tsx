@@ -9,19 +9,24 @@
 
     function App() {
         const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+        const [userEmail, setUserEmail] = useState<string | null>(null);
+
         useEffect(() => {
             // Check if access token exists in localStorage
             const token = localStorage.getItem('accessToken');
+            const storedEmail = localStorage.getItem('userEmail');
             setIsAuthenticated(!!token);
+            if (storedEmail) 
+                setUserEmail(storedEmail);
         }, []);
 
         return (
             <ThemeProvider theme={theme}>
                 <CssBaseline />
                 {isAuthenticated ? (
-                <HomePage />
+                <HomePage userEmail={userEmail}/>
             ) : (
-                <AuthComponent setIsAuthenticated={setIsAuthenticated} />
+                <AuthComponent setIsAuthenticated={setIsAuthenticated} setUserEmail={setUserEmail}/>
             )}
             </ThemeProvider>
         );

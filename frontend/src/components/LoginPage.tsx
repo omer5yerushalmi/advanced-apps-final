@@ -22,9 +22,10 @@ interface FormData {
 
 interface AuthProps {
   setIsAuthenticated: (auth: boolean) => void;
+  setUserEmail: (email: string) => void;
 }
 
-const AuthComponent: React.FC<AuthProps> = ({ setIsAuthenticated }) => {
+const AuthComponent: React.FC<AuthProps> = ({ setIsAuthenticated, setUserEmail  }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState<FormData>({
     email: '',
@@ -48,6 +49,8 @@ const AuthComponent: React.FC<AuthProps> = ({ setIsAuthenticated }) => {
         console.log(res)
         if (res?.accessToken) {
           localStorage.setItem('accessToken', res.accessToken);
+          localStorage.setItem('userEmail', formData.email);
+          setUserEmail(formData.email);
           setIsAuthenticated(true);
         }
       } catch(e){
@@ -74,8 +77,10 @@ const AuthComponent: React.FC<AuthProps> = ({ setIsAuthenticated }) => {
     try {
       const res = await googleSignin(credentialResponse)
       console.log(res)
-      if (res?.accessToken) {
+      if (res?.accessToken && res?.email) {
         localStorage.setItem('accessToken', res.accessToken);
+        localStorage.setItem('userEmail', res.email);
+        setUserEmail(res.email);
         setIsAuthenticated(true);
       }
     } catch (e) {
