@@ -6,7 +6,11 @@ import { mockUser } from '../mockData/userData';
 import Navigation from './Navigation';
 import CreatePostModal from './CreatePostModal';
 
-const HomePage: React.FC = () => {
+interface HomePageProps {
+    onLogout: () => void;
+}
+
+const HomePage: React.FC<HomePageProps> = ({ onLogout }) => {
     const [showProfile, setShowProfile] = useState(false);
     const [showCreatePost, setShowCreatePost] = useState(false);
     const postListRef = useRef<{ refreshPosts: () => void }>(null);
@@ -29,12 +33,14 @@ const HomePage: React.FC = () => {
         postListRef.current?.refreshPosts();
     };
 
+
     return (
         <Box>
             <Navigation
                 onProfileClick={handleProfileClick}
                 onNewPostClick={handleNewPostClick}
                 onHomeClick={handleHomeClick}
+                onLogout={onLogout}
             />
             <Box sx={{ pt: 8, pb: 7 }}>
                 {showProfile ? (

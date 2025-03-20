@@ -10,15 +10,17 @@ import {
     Home,
     AddBox,
     AccountCircle,
+    Logout,
 } from '@mui/icons-material';
 
 interface NavigationProps {
     onProfileClick: () => void;
     onNewPostClick: () => void;
     onHomeClick: () => void;
+    onLogout: () => void;
 }
 
-const Navigation: React.FC<NavigationProps> = ({ onProfileClick, onNewPostClick, onHomeClick }) => {
+const Navigation: React.FC<NavigationProps> = ({ onProfileClick, onNewPostClick, onHomeClick, onLogout }) => {
     return (
         <>
             {/* Top App Bar */}
@@ -33,6 +35,9 @@ const Navigation: React.FC<NavigationProps> = ({ onProfileClick, onNewPostClick,
             >
                 <Container maxWidth="md">
                     <Toolbar sx={{ justifyContent: 'space-between', px: 0 }}>
+                        <IconButton onClick={onLogout}>
+                            <Logout sx={{ fontSize: 28 }} />
+                        </IconButton>
                         <Typography
                             variant="h6"
                             sx={{
@@ -41,7 +46,6 @@ const Navigation: React.FC<NavigationProps> = ({ onProfileClick, onNewPostClick,
                                 fontWeight: 'bold'
                             }}
                         >
-                            Instagram
                         </Typography>
                         <IconButton onClick={onNewPostClick}>
                             <AddBox sx={{ fontSize: 28 }} />

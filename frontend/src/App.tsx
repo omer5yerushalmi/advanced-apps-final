@@ -3,6 +3,7 @@
     import AuthComponent from './components/LoginPage';
     import HomePage from './components/HomePage';
     import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 
     const theme = createTheme();
@@ -15,11 +16,26 @@
             setIsAuthenticated(!!token);
         }, []);
 
+        const handleLogout = async () => {
+            console.log('User logged out');
+            try {        
+                await axios.post('http://localhost:3010/api/auth/logout', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                    }
+                });
+                localStorage.clear();
+                setIsAuthenticated(false);
+            } catch (error) {
+                console.error('Error with logout', error);
+            }
+        };
+
         return (
             <ThemeProvider theme={theme}>
                 <CssBaseline />
                 {isAuthenticated ? (
-                <HomePage />
+                <HomePage onLogout={handleLogout}/>
             ) : (
                 <AuthComponent setIsAuthenticated={setIsAuthenticated} />
             )}
