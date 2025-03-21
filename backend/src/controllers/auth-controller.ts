@@ -26,9 +26,11 @@ const googleSignin = async (req: Request, res: Response, next: NextFunction): Pr
         });
         const newUser = await user.save();
         const tokens = await generateTokens(newUser);
+        tokens["email"] = newUser.email;
         res.status(config.statusCode.SUCCESS).json(tokens);
       } else{
         const tokens = await generateTokens(user);
+        tokens["email"] = user.email;
         res.status(config.statusCode.SUCCESS).json(tokens);
       }
     }
@@ -78,9 +80,9 @@ const generateTokens = async (user: UserDocument) => {
   );
 
   if (!user.tokens) {
-    user.tokens = [refreshToken];
+    user.tokens = [accessToken, refreshToken];
   } else {
-    user.tokens.push(refreshToken);
+    user.tokens.push(accessToken, refreshToken);
   }
 
   await user.save();
@@ -119,20 +121,11 @@ const login = async (req: Request, res: Response, next: NextFunction): Promise<v
 
 const logout = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const authHeaders = req.headers['authorization'];
-    const token = authHeaders?.split(' ')[1];
-
-    if (!token) {
-      throw new ApiError(config.statusCode.UNAUTHORIZED, "No token provided");
-    }
-
-    jwt.verify(token, process.env.REFRESH_TOKEN_SECRET, async (err, userInfo) => {
-      if (err) {
-        throw new ApiError(config.statusCode.FORBIDDEN, err.message);
-      }
-
-      const userId = userInfo._id;
-      const user = await User.findById(userId);
+      const authHeaders = req.headers['authorization'];
+      const token = authHeaders?.split(' ')[1];
+      const userEmail  = req.body.userEmail;
+      const user = await User.findOne({ 'email': userEmail });
+      
       if (!user) {
         throw new ApiError(config.statusCode.FORBIDDEN, "Invalid request");
       }
@@ -141,13 +134,13 @@ const logout = async (req: Request, res: Response, next: NextFunction): Promise<
         await user.save();
         throw new ApiError(config.statusCode.FORBIDDEN, "Invalid request");
       }
-      user.tokens.splice(user.tokens.indexOf(token), 1);
+      user.tokens = [];
       await user.save();
       res.status(config.statusCode.SUCCESS).json({ message: "Logged out successfully" });
-    })
-  } catch (error) {
-    next(error);
-  }
+    }
+    catch (error) {
+      next(error);
+    }
 };
 
 const refreshToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
