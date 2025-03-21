@@ -22,15 +22,17 @@ const googleSignin = async (req: Request, res: Response, next: NextFunction): Pr
         user = new User({
           email: email,
           password: 'google',
-          username: payload?.name,
+          username: payload?.name || email,
         });
         const newUser = await user.save();
         const tokens = await generateTokens(newUser);
         tokens["email"] = newUser.email;
+        tokens["username"] = newUser.username;
         res.status(config.statusCode.SUCCESS).json(tokens);
       } else{
         const tokens = await generateTokens(user);
         tokens["email"] = user.email;
+        tokens["username"] = user.username;
         res.status(config.statusCode.SUCCESS).json(tokens);
       }
     }
@@ -112,6 +114,7 @@ const login = async (req: Request, res: Response, next: NextFunction): Promise<v
     }
 
     const tokens = await generateTokens(user)
+    tokens["username"] = user.username
 
     res.status(config.statusCode.SUCCESS).json(tokens);
   } catch (error) {
