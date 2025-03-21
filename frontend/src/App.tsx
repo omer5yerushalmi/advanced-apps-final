@@ -3,6 +3,7 @@ import { createTheme } from '@mui/material/styles';
 import AuthComponent from './components/LoginPage';
 import HomePage from './components/HomePage';
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 
 const theme = createTheme();
@@ -20,11 +21,27 @@ function App() {
             setUserEmail(storedEmail);
     }, []);
 
+    const handleLogout = async () => {
+        console.log('User logged out');
+        try {
+            await axios.post('http://localhost:3010/api/auth/logout', { "userEmail": userEmail }, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            localStorage.clear();
+            setIsAuthenticated(false);
+        } catch (error) {
+            console.error('Error with logout', error);
+        }
+    };
+
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
             {isAuthenticated ? (
-            <HomePage userEmail={userEmail}/>
+            <HomePage userEmail={userEmail} onLogoutClick={handleLogout}/>
         ) : (
             <AuthComponent setIsAuthenticated={setIsAuthenticated} setUserEmail={setUserEmail}/>
         )}

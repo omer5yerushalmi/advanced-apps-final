@@ -8,9 +8,10 @@ import CreatePostModal from './CreatePostModal';
 
 interface HomePageProps {
     userEmail: string | null;
+    onLogoutClick: () => void;
 }
 
-const HomePage: React.FC<HomePageProps> = ({ userEmail }) => {
+const HomePage: React.FC<HomePageProps> = ({ userEmail, onLogoutClick }) => {
     const [showProfile, setShowProfile] = useState(false);
     const [showCreatePost, setShowCreatePost] = useState(false);
     const postListRef = useRef<{ refreshPosts: () => void }>(null);
@@ -39,6 +40,7 @@ const HomePage: React.FC<HomePageProps> = ({ userEmail }) => {
                 onProfileClick={handleProfileClick}
                 onNewPostClick={handleNewPostClick}
                 onHomeClick={handleHomeClick}
+                onLogoutClick={onLogoutClick}
             />
             <Box sx={{ pt: 8, pb: 7 }}>
                 {showProfile ? (

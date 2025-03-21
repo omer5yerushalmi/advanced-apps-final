@@ -66,6 +66,7 @@ const AuthComponent: React.FC<AuthProps> = ({ setIsAuthenticated, setUserEmail  
         }
         const res = await register(user)
         console.log(res)
+        setIsLogin(true)
       } catch (e) {
         console.log(e)
       }
