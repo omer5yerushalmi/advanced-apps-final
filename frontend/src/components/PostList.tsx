@@ -27,6 +27,7 @@ const PostList = forwardRef((props, ref) => {
     const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [activeFilter, setActiveFilter] = useState<'all' | 'my'>('all');
     const postsPerPage = 1;
     const [editingPost, setEditingPost] = useState<Post | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -35,6 +36,14 @@ const PostList = forwardRef((props, ref) => {
     useEffect(() => {
         fetchAllPosts();
     }, []);
+
+    const filterPosts = (posts: Post[]) => {
+        const userEmail = localStorage.getItem('userEmail');
+        if (activeFilter === 'my') {
+            return posts.filter(post => post.userId === userEmail);
+        }
+        return posts;
+    };
 
     const fetchAllPosts = async () => {
         try {
@@ -51,10 +60,11 @@ const PostList = forwardRef((props, ref) => {
             const data = await response.json();
             setAllPosts(data);
 
-            // Set initial displayed posts
-            const initialPosts = data.slice(0, postsPerPage);
+            // Apply filter before setting displayed posts
+            const filteredData = filterPosts(data);
+            const initialPosts = filteredData.slice(0, postsPerPage);
             setDisplayedPosts(initialPosts);
-            setHasMore(data.length > postsPerPage);
+            setHasMore(filteredData.length > postsPerPage);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
@@ -63,7 +73,8 @@ const PostList = forwardRef((props, ref) => {
     };
 
     const fetchMorePosts = () => {
-        const nextPosts = allPosts.slice(
+        const filteredPosts = filterPosts(allPosts);
+        const nextPosts = filteredPosts.slice(
             page * postsPerPage,
             (page + 1) * postsPerPage
         );
@@ -76,6 +87,16 @@ const PostList = forwardRef((props, ref) => {
         setDisplayedPosts(prev => [...prev, ...nextPosts]);
         setPage(page + 1);
     };
+
+    // Add effect to handle filter changes
+    useEffect(() => {
+        setPage(1);
+        setDisplayedPosts([]);
+        const filteredPosts = filterPosts(allPosts);
+        const initialPosts = filteredPosts.slice(0, postsPerPage);
+        setDisplayedPosts(initialPosts);
+        setHasMore(filteredPosts.length > postsPerPage);
+    }, [activeFilter]);
 
     // Add this function to expose the refresh capability
     const refreshPosts = () => {
@@ -162,6 +183,46 @@ const PostList = forwardRef((props, ref) => {
     return (
         <Box sx={{ bgcolor: '#FAFAFA', minHeight: '100vh' }}>
             <Container maxWidth="md">
+                {/* Add Navigation Filter */}
+                <Box
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        gap: 2,
+                        pt: 2,
+                        pb: 2,
+                        borderBottom: 1,
+                        borderColor: 'divider'
+                    }}
+                >
+                    <Typography
+                        onClick={() => setActiveFilter('all')}
+                        sx={{
+                            cursor: 'pointer',
+                            fontWeight: activeFilter === 'all' ? 'bold' : 'normal',
+                            color: activeFilter === 'all' ? 'primary.main' : 'text.primary',
+                            borderBottom: activeFilter === 'all' ? 2 : 0,
+                            borderColor: 'primary.main',
+                            pb: 0.5
+                        }}
+                    >
+                        All Posts
+                    </Typography>
+                    <Typography
+                        onClick={() => setActiveFilter('my')}
+                        sx={{
+                            cursor: 'pointer',
+                            fontWeight: activeFilter === 'my' ? 'bold' : 'normal',
+                            color: activeFilter === 'my' ? 'primary.main' : 'text.primary',
+                            borderBottom: activeFilter === 'my' ? 2 : 0,
+                            borderColor: 'primary.main',
+                            pb: 0.5
+                        }}
+                    >
+                        My Posts
+                    </Typography>
+                </Box>
+
                 <InfiniteScroll
                     dataLength={displayedPosts.length}
                     next={fetchMorePosts}
