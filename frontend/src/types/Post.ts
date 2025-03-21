@@ -1,5 +1,5 @@
 export interface Post {
-    id: string;
+    _id: string;
     userId: string;
     userName: string;
     text: string;

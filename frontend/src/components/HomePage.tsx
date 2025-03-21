@@ -50,8 +50,8 @@ const HomePage: React.FC<HomePageProps> = ({ userEmail }) => {
             <CreatePostModal
                 isOpen={showCreatePost}
                 onClose={() => setShowCreatePost(false)}
-                userId="your-user-id"
-                userName="your-username"
+                userId={userEmail || ''}
+                userName={userEmail || ''}
                 onPostCreated={handlePostCreated}
             />
         </Box>
