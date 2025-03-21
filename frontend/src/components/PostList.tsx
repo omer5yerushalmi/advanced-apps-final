@@ -110,15 +110,20 @@ const PostList = forwardRef((props, ref) => {
         setIsEditModalOpen(true);
     };
 
-    const handleEditComplete = async (postId: string, newText: string) => {
+    const handleEditComplete = async (postId: string, newText: string, file?: File) => {
         try {
+            const formData = new FormData();
+            formData.append('text', newText);
+            if (file) {
+                formData.append('image', file);
+            }
+
             const response = await fetch(`http://localhost:3010/api/posts/${postId}`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
                 },
-                body: JSON.stringify({ text: newText })
+                body: formData
             });
 
             if (!response.ok) {

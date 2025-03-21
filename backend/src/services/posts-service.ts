@@ -31,11 +31,14 @@ const createPost = async (postData: PostData): Promise<PostDocument> => {
   });
 };
 
-const updatePost = async (id: string, text: string): Promise<PostDocument | undefined> => {
+const updatePost = async (id: string, text: string, imageUrl?: string): Promise<PostDocument | undefined> => {
   const post = await getPostById(id);
 
   if (post) {
     post.text = text;
+    if (imageUrl !== undefined) {
+      post.imageUrl = imageUrl;
+    }
     post.updatedAt = new Date().toISOString();
     await post.save();
   }

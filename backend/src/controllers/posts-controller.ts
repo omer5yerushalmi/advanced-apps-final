@@ -66,15 +66,21 @@ const deletePost = async (req: Request, res: Response): Promise<void> => {
 
 const updatePost = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { text } = req.body;
+    const text = req.body.text;
     const id = req.params.id;
 
     if (!text) {
       res.status(config.statusCode.BAD_REQUEST).json("{text} is required.");
-    } else {
-      const data = await postsService.updatePost(id, text);
-      res.status(config.statusCode.SUCCESS).json(data);
+      return;
     }
+
+    let imageUrl: string | undefined;
+    if (req.file) {
+      imageUrl = `${base}/${req.file.path}`;
+    }
+
+    const data = await postsService.updatePost(id, text, imageUrl);
+    res.status(config.statusCode.SUCCESS).json(data);
   } catch (error) {
     res.status(config.statusCode.INTERNAL_SERVER_ERROR).json((error as Error).message);
   }
