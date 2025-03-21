@@ -95,6 +95,8 @@ import authenticate from "../common/auth_middleware";
  *                   type: string
  *                 refreshToken:
  *                   type: string
+ *                 username:
+ *                   type: string 
  * 
  * @swagger
  * /api/auth/logout:

@@ -11,14 +11,19 @@ const theme = createTheme();
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [userEmail, setUserEmail] = useState<string | null>(null);
+    const [username, setUsername] = useState<string | null>(null);
 
     useEffect(() => {
         // Check if access token exists in localStorage
         const token = localStorage.getItem('accessToken');
         const storedEmail = localStorage.getItem('userEmail');
+        const storedUsername = localStorage.getItem('username');
         setIsAuthenticated(!!token);
         if (storedEmail) 
             setUserEmail(storedEmail);
+        if (storedUsername)
+            setUsername(storedUsername);
+
     }, []);
 
     const handleLogout = async () => {
@@ -41,9 +46,9 @@ function App() {
         <ThemeProvider theme={theme}>
             <CssBaseline />
             {isAuthenticated ? (
-            <HomePage userEmail={userEmail} onLogoutClick={handleLogout}/>
+            <HomePage userEmail={userEmail} username={username} onLogoutClick={handleLogout}/>
         ) : (
-            <AuthComponent setIsAuthenticated={setIsAuthenticated} setUserEmail={setUserEmail}/>
+            <AuthComponent setIsAuthenticated={setIsAuthenticated} setUserEmail={setUserEmail} setUsername={setUsername}/>
         )}
         </ThemeProvider>
     );
