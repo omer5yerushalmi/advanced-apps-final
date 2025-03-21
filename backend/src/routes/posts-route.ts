@@ -181,7 +181,7 @@ const postsRoutes = (): Router => {
 
   router.get("/", authenticate, postsController.getAllPosts);
   router.get("/:id", authenticate, postsController.getPostById);
-  router.put("/:id", authenticate, postsController.updatePost);
+  router.put("/:id", authenticate, upload.single('image'), postsController.updatePost);
   router.delete("/:id", authenticate, postsController.deletePost);
   router.post("/", authenticate, upload.single('image'), postsController.createPost);
 

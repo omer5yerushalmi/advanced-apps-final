@@ -14,9 +14,11 @@ import {
     FavoriteBorder,
     ChatBubbleOutline,
     Delete as DeleteIcon,
+    Edit as EditIcon,
 } from '@mui/icons-material';
 import { Post } from '../types/Post';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import EditPostModal from './EditPostModal';
 
 const PostList = forwardRef((props, ref) => {
     const [allPosts, setAllPosts] = useState<Post[]>([]); // Store all posts
@@ -26,6 +28,8 @@ const PostList = forwardRef((props, ref) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const postsPerPage = 1;
+    const [editingPost, setEditingPost] = useState<Post | null>(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     // Fetch all posts initially
     useEffect(() => {
@@ -101,6 +105,45 @@ const PostList = forwardRef((props, ref) => {
         }
     };
 
+    const handleEditPost = (post: Post) => {
+        setEditingPost(post);
+        setIsEditModalOpen(true);
+    };
+
+    const handleEditComplete = async (postId: string, newText: string, file?: File) => {
+        try {
+            const formData = new FormData();
+            formData.append('text', newText);
+            if (file) {
+                formData.append('image', file);
+            }
+
+            const response = await fetch(`http://localhost:3010/api/posts/${postId}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update post');
+            }
+
+            const updatedPost = await response.json();
+
+            // Update the posts in state
+            setAllPosts(prev => prev.map(p => p._id === postId ? updatedPost : p));
+            setDisplayedPosts(prev => prev.map(p => p._id === postId ? updatedPost : p));
+
+            setIsEditModalOpen(false);
+            setEditingPost(null);
+        } catch (err) {
+            console.error('Error updating post:', err);
+            // Handle error appropriately
+        }
+    };
+
     // Expose the refresh method
     useImperativeHandle(ref, () => ({
         refreshPosts
@@ -152,15 +195,15 @@ const PostList = forwardRef((props, ref) => {
                                 {/* User Header */}
                                 <Box
                                     sx={{
-                                        py: 1.5,
-                                        px: 2,
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'space-between',
-                                        borderBottom: '1px solid',
-                                        borderColor: '#DBDBDB',
+                                        width: '100%',
+                                        px: 2,
+                                        py: 1.5
                                     }}
                                 >
+                                    {/* User info group on the left */}
                                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                         <Avatar
                                             sx={{
@@ -182,19 +225,35 @@ const PostList = forwardRef((props, ref) => {
                                             {post.userName}
                                         </Typography>
                                     </Box>
+
+                                    {/* Edit and Delete buttons group on the right */}
                                     {post.userId === localStorage.getItem('userEmail') && (
-                                        <IconButton
-                                            onClick={() => handleDeletePost(post._id)}
-                                            size="small"
-                                            sx={{
-                                                color: 'grey.500',
-                                                '&:hover': {
-                                                    color: 'error.main'
-                                                }
-                                            }}
-                                        >
-                                            <DeleteIcon fontSize="small" />
-                                        </IconButton>
+                                        <Box sx={{ display: 'flex', gap: 0.5 }}>
+                                            <IconButton
+                                                onClick={() => handleEditPost(post)}
+                                                size="small"
+                                                sx={{
+                                                    color: 'grey.500',
+                                                    '&:hover': {
+                                                        color: 'primary.main'
+                                                    }
+                                                }}
+                                            >
+                                                <EditIcon fontSize="small" />
+                                            </IconButton>
+                                            <IconButton
+                                                onClick={() => handleDeletePost(post._id)}
+                                                size="small"
+                                                sx={{
+                                                    color: 'grey.500',
+                                                    '&:hover': {
+                                                        color: 'error.main'
+                                                    }
+                                                }}
+                                            >
+                                                <DeleteIcon fontSize="small" />
+                                            </IconButton>
+                                        </Box>
                                     )}
                                 </Box>
 
@@ -259,6 +318,15 @@ const PostList = forwardRef((props, ref) => {
                     </Box>
                 )}
             </Container>
+            <EditPostModal
+                isOpen={isEditModalOpen}
+                onClose={() => {
+                    setIsEditModalOpen(false);
+                    setEditingPost(null);
+                }}
+                post={editingPost}
+                onEditComplete={handleEditComplete}
+            />
         </Box>
     );
 });
