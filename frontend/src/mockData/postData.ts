@@ -2,7 +2,7 @@ import { Post } from '../types/Post';
 
 export const mockPosts: Post[] = [
     {
-        id: '1',
+        _id: '1',
         userId: '1',
         userName: 'john_doe',
         text: '🌅 Perfect sunset vibes #photography #nature',
@@ -10,7 +10,7 @@ export const mockPosts: Post[] = [
         updatedAt: new Date().toISOString(),
     },
     {
-        id: '2',
+        _id: '2',
         userId: '2',
         userName: 'travel_emma',
         text: '✈️ Adventure awaits! #travel #wanderlust',

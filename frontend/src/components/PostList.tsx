@@ -13,6 +13,7 @@ import {
 import {
     FavoriteBorder,
     ChatBubbleOutline,
+    Delete as DeleteIcon,
 } from '@mui/icons-material';
 import { Post } from '../types/Post';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -79,6 +80,27 @@ const PostList = forwardRef((props, ref) => {
         fetchAllPosts();
     };
 
+    const handleDeletePost = async (postId: string) => {
+        try {
+            const response = await fetch(`http://localhost:3010/api/posts/${postId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                }
+            });
+            console.log(response);
+            if (!response.ok) {
+                throw new Error('Failed to delete post');
+            }
+
+            // Remove the deleted post from both states
+            setAllPosts(prev => prev.filter(post => post._id !== postId));
+            setDisplayedPosts(prev => prev.filter(post => post._id !== postId));
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'An error occurred');
+        }
+    };
+
     // Expose the refresh method
     useImperativeHandle(ref, () => ({
         refreshPosts
@@ -118,7 +140,7 @@ const PostList = forwardRef((props, ref) => {
                     style={{ overflow: 'hidden' }}
                 >
                     {displayedPosts.map((post, index) => (
-                        <React.Fragment key={post.id}>
+                        <React.Fragment key={post._id}>
                             <Card
                                 sx={{
                                     minHeight: '100vh',
@@ -134,29 +156,46 @@ const PostList = forwardRef((props, ref) => {
                                         px: 2,
                                         display: 'flex',
                                         alignItems: 'center',
+                                        justifyContent: 'space-between',
                                         borderBottom: '1px solid',
                                         borderColor: '#DBDBDB',
                                     }}
                                 >
-                                    <Avatar
-                                        sx={{
-                                            width: 32,
-                                            height: 32,
-                                            border: '2px solid #E1306C'
-                                        }}
-                                    >
-                                        {post.userName[0]}
-                                    </Avatar>
-                                    <Typography
-                                        variant="subtitle2"
-                                        sx={{
-                                            ml: 1.5,
-                                            fontWeight: 600,
-                                            fontSize: '14px'
-                                        }}
-                                    >
-                                        {post.userName}
-                                    </Typography>
+                                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                        <Avatar
+                                            sx={{
+                                                width: 32,
+                                                height: 32,
+                                                border: '2px solid #E1306C'
+                                            }}
+                                        >
+                                            {post.userName[0]}
+                                        </Avatar>
+                                        <Typography
+                                            variant="subtitle2"
+                                            sx={{
+                                                ml: 1.5,
+                                                fontWeight: 600,
+                                                fontSize: '14px'
+                                            }}
+                                        >
+                                            {post.userName}
+                                        </Typography>
+                                    </Box>
+                                    {post.userId === localStorage.getItem('userEmail') && (
+                                        <IconButton
+                                            onClick={() => handleDeletePost(post._id)}
+                                            size="small"
+                                            sx={{
+                                                color: 'grey.500',
+                                                '&:hover': {
+                                                    color: 'error.main'
+                                                }
+                                            }}
+                                        >
+                                            <DeleteIcon fontSize="small" />
+                                        </IconButton>
+                                    )}
                                 </Box>
 
                                 {/* Post Image */}
