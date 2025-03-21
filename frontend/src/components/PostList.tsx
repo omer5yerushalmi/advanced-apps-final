@@ -190,15 +190,15 @@ const PostList = forwardRef((props, ref) => {
                                 {/* User Header */}
                                 <Box
                                     sx={{
-                                        py: 1.5,
-                                        px: 2,
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'space-between',
-                                        borderBottom: '1px solid',
-                                        borderColor: '#DBDBDB',
+                                        width: '100%',
+                                        px: 2,
+                                        py: 1.5
                                     }}
                                 >
+                                    {/* User info group on the left */}
                                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                         <Avatar
                                             sx={{
@@ -220,8 +220,10 @@ const PostList = forwardRef((props, ref) => {
                                             {post.userName}
                                         </Typography>
                                     </Box>
+
+                                    {/* Edit and Delete buttons group on the right */}
                                     {post.userId === localStorage.getItem('userEmail') && (
-                                        <>
+                                        <Box sx={{ display: 'flex', gap: 0.5 }}>
                                             <IconButton
                                                 onClick={() => handleEditPost(post)}
                                                 size="small"
@@ -246,7 +248,7 @@ const PostList = forwardRef((props, ref) => {
                                             >
                                                 <DeleteIcon fontSize="small" />
                                             </IconButton>
-                                        </>
+                                        </Box>
                                     )}
                                 </Box>
 
