@@ -45,7 +45,7 @@ const HomePage: React.FC<HomePageProps> = ({ userEmail, username, onLogoutClick 
             />
             <Box sx={{ pt: 8, pb: 7 }}>
                 {showProfile ? (
-                    <UserProfile user={mockUser} onBack={() => setShowProfile(false)} />
+                    <UserProfile userEmail={userEmail} />
                 ) : (
                     <PostList ref={postListRef} />
                 )}

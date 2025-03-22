@@ -273,7 +273,7 @@ const PostList = forwardRef((props, ref) => {
                                                 border: '2px solid #E1306C'
                                             }}
                                         >
-                                            {post.userName[0]}
+                                            {post.userName}
                                         </Avatar>
                                         <Typography
                                             variant="subtitle2"

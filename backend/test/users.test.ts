@@ -6,6 +6,7 @@ import { User } from '../src/models/user';
 
 let accessToken: string;
 let userId: string;
+let userEmail: string;
 
 beforeAll(async () => {
     await connect(config.mongoDB.uri);
@@ -29,9 +30,10 @@ beforeAll(async () => {
 
     accessToken = loginResponse.body.accessToken;
 
-    // Get the user ID for later tests
+    // Get the user ID and email for later tests
     const users = await User.find({});
     userId = users[0]._id.toString();
+    userEmail = users[0].email;
 });
 
 afterAll(async () => {
@@ -58,10 +60,10 @@ describe('Users', () => {
         });
     });
 
-    describe('GET /users/:id', () => {
+    describe('GET /users/id/:id', () => {
         it('should get user by id', async () => {
             const response = await request(app)
-                .get(`/api/users/${userId}`)
+                .get(`/api/users/id/${userId}`)
                 .set('Authorization', `Bearer ${accessToken}`);
 
             expect(response.status).toBe(200);
@@ -71,7 +73,7 @@ describe('Users', () => {
 
         it('should return 404 for non-existent user', async () => {
             const response = await request(app)
-                .get('/api/users/654321654321654321654321')
+                .get('/api/users/id/654321654321654321654321')
                 .set('Authorization', `Bearer ${accessToken}`);
 
             expect(response.status).toBe(404);
@@ -79,12 +81,32 @@ describe('Users', () => {
 
         it('should handle invalid user id format', async () => {
             const response = await request(app)
-                .get('/api/users/invalid-id')
+                .get('/api/users/id/invalid-id')
                 .set('Authorization', `Bearer ${accessToken}`);
 
             expect(response.status).toBe(404);
         });
     });
+
+    describe('GET /users/email/:email', () => {
+        it('should get user by email', async () => {
+            const response = await request(app)
+                .get(`/api/users/email/${userEmail}`)
+                .set('Authorization', `Bearer ${accessToken}`);
+
+            expect(response.status).toBe(200);
+            expect(response.body).toHaveProperty('email', userEmail);
+        });
+
+        it('should return 404 for non-existent user', async () => {
+            const response = await request(app)
+                .get('/api/users/email/654321654321654321654321')
+                .set('Authorization', `Bearer ${accessToken}`);
+
+            expect(response.status).toBe(404);
+        });
+    });
+
 
     describe('POST /users', () => {
         it('should create a new user', async () => {
@@ -116,16 +138,17 @@ describe('Users', () => {
     });
 
     describe('PUT /users/:id', () => {
-        it('should update user email', async () => {
+        it('should update user username', async () => {
             const response = await request(app)
                 .put(`/api/users/${userId}`)
                 .set('Authorization', `Bearer ${accessToken}`)
                 .send({
-                    email: 'updated@example.com'
+                    email: 'updated@example.com',
+                    username: 'new-user',
                 });
 
             expect(response.status).toBe(200);
-            expect(response.body).toHaveProperty('email', 'updated@example.com');
+            expect(response.body).toHaveProperty('username', 'new-user');
         });
 
         it('should fail without email in request body', async () => {
@@ -173,7 +196,7 @@ describe('Users', () => {
 
             // Verify user is deleted
             const getResponse = await request(app)
-                .get(`/api/users/${deleteUserId}`)
+                .get(`/api/users/id/${deleteUserId}`)
                 .set('Authorization', `Bearer ${accessToken}`);
 
             expect(getResponse.status).toBe(404);
