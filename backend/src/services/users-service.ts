@@ -2,8 +2,9 @@ import { User, UserDocument } from "../models/user";
 import mongoose from "mongoose";
 
 interface userData {
-    username: String,
-    email: String,
+    username: string,
+    email: string,
+    imgUrl: string,
 };
 
 const getAllUsers = async (): Promise<UserDocument[]> => {
@@ -17,15 +18,29 @@ const getUserById = async (id: string): Promise<UserDocument | undefined> => {
     return await User.findById(id) ?? undefined;
 };
 
+const getUserByEmail = async (email: string): Promise<UserDocument | undefined> => {
+    if (!email) {
+        return undefined;
+    }
+    return await User.findOne({ 'email': email }) ?? undefined;
+};
+
 const createUser = async (userData: userData): Promise<UserDocument> => {
     return await User.create(userData);
 };
 
-const updateUser = async (id: string, email: string): Promise<UserDocument | undefined> => {
+const updateUser = async (id: string, userData: userData): Promise<UserDocument | undefined> => {
     const user = await getUserById(id);
-
+    
     if (user) {
-        user.email = email;
+        const oldUsername = user.username;
+        if (oldUsername != userData.username){
+            const user_with_username = await User.findOne({ 'username': userData.username });
+            if (user_with_username)
+                return undefined;
+        }
+        user.username = userData.username;
+        user.imgUrl = userData.imgUrl;
         await user.save();
     }
 
@@ -43,6 +58,7 @@ const deleteUser = async (id: string): Promise<UserDocument | undefined> => {
 export default {
     getAllUsers,
     getUserById,
+    getUserByEmail,
     createUser,
     updateUser,
     deleteUser,

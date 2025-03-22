@@ -23,12 +23,25 @@ const getUserById = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+const getUserByEmail = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const email = req.params.email;
+    const data = await usersService.getUserByEmail(email);
+    res
+      .status(data ? config.statusCode.SUCCESS : config.statusCode.NOT_FOUND)
+      .json(data);
+  } catch (error) {
+    res.status(config.statusCode.INTERNAL_SERVER_ERROR).json((error as Error).message);
+  }
+};
+
 const createUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const userData = {
       username: req.body.username,
       email: req.body.email,
       password: req.body.password,
+      imgUrl: 'none',
     };
 
     if (Object.values(userData).every(Boolean)) {
@@ -58,17 +71,30 @@ const deleteUser = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+const base = "http://127.0.0.1:3010";
+
 const updateUser = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email } = req.body;
     const id = req.params.id;
+    const { username, email } = req.body;
 
     if (!email) {
       res.status(config.statusCode.BAD_REQUEST).json("<email> is required.");
       return;
     }
 
-    const data = await usersService.updateUser(id, email);
+    let imageUrl: string | undefined;
+    if (req.file) {
+      imageUrl = `${base}/${req.file.path}`;
+    }
+
+    const userData = {
+      email: email,
+      username: username,
+      imgUrl: imageUrl,
+    }
+
+    const data = await usersService.updateUser(id, userData);
 
     if (!data) {
       res.status(config.statusCode.NOT_FOUND).json("User not found");
@@ -84,6 +110,7 @@ const updateUser = async (req: Request, res: Response): Promise<void> => {
 export default {
   getAllUsers,
   getUserById,
+  getUserByEmail,
   createUser,
   deleteUser,
   updateUser,

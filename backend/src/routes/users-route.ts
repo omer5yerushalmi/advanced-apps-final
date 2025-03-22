@@ -1,13 +1,31 @@
 import express, { Router } from "express";
 import usersController from "../controllers/users-controller";
 import authenticate from "../common/auth_middleware";
+import multer from "multer";
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'public/')
+  },
+  filename: function (req, file, cb) {
+    const ext = file.originalname.split('.')
+      .filter(Boolean)
+      .slice(1)
+      .join('.')
+    cb(null, Date.now() + "." + ext)
+  }
+});
+
+const upload = multer({ storage: storage });
+
 
 const usersRoutes = (): Router => {
   const router = express.Router();
 
   router.get("/", authenticate, usersController.getAllUsers);
-  router.get("/:id", authenticate, usersController.getUserById);
-  router.put("/:id", authenticate, usersController.updateUser);
+  router.get("/id/:id", authenticate, usersController.getUserById);
+  router.get("/email/:email", authenticate, usersController.getUserByEmail);
+  router.put("/:id", authenticate, upload.single('image'), usersController.updateUser);
   router.delete("/:id", authenticate, usersController.deleteUser);
   router.post("/", authenticate, usersController.createUser);
 
@@ -49,30 +67,14 @@ export default usersRoutes;
  *                 type: string
  *               email:
  *                 type: string
+ *               imgUrl:
+ *                 type: string
  *     responses:
  *       200:
  *         description: User created successfully
  *       400:
  *         description: Bad request
- * 
- * /api/users/{id}:
- *   get:
- *     summary: Get user by ID
- *     tags: [Users]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: User found
- *       404:
- *         description: User not found
- * 
+ *      
  *   put:
  *     summary: Update user
  *     tags: [Users]
@@ -115,6 +117,41 @@ export default usersRoutes;
  *     responses:
  *       200:
  *         description: User deleted
+ *       404:
+ *         description: User not found
+ * /api/users/id/{id}:
+ *   get:
+ *     summary: Get user by ID
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User found
+ *       404:
+ *         description: User not found
+ * 
+ * /api/users/email/{email}:
+ *   get:
+ *     summary: Get user by Email
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User found
  *       404:
  *         description: User not found
  */
