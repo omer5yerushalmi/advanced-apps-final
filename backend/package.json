@@ -7,7 +7,7 @@
     "start": "npx tsx src/index.ts",
     "build": "tsc",
     "token": "openssl rand -out openssl-secret.txt -hex 64",
-    "compose": "docker-compose up -d",
+    "compose": "docker compose up -d",
     "test": "jest --coverage --detectOpenHandles --forceExit --verbose=false"
   },
   "repository": {
