@@ -15,10 +15,14 @@ const config = {
     NOT_FOUND: 404,
     BAD_REQUEST: 400,
     UNAUTHORIZED: 401,
-    FORBIDDEN: 403
+    FORBIDDEN: 403,
+    TOO_MANY_REQUESTS: 429,
   },
   nodeEnv: process.env.NODE_ENV || 'development',
   googleClientId: process.env.GOOGLE_CLIENT_ID,
+  gemini: {
+    apiKey: process.env.GEMINI_API_KEY
+  },
 };
 
 export default config;

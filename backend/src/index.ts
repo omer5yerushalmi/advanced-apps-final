@@ -10,6 +10,7 @@ import usersRoutes from "./routes/users-route";
 import authRoutes from "./routes/auth-route";
 import createSwagger from "./common/swagger";
 import fileRouter from "./routes/file-route";
+import aiRoutes from "./routes/ai-route";
 
 const app: Application = express();
 
@@ -20,6 +21,7 @@ app.use("/api/comments", commentsRoutes());
 app.use("/api/users", usersRoutes());
 app.use("/api/auth", authRoutes());
 app.use("/api/file", fileRouter);
+app.use("/api/ai", aiRoutes());
 app.use("/public", express.static("public"));
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction): void => {
