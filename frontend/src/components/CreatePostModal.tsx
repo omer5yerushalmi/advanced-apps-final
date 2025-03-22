@@ -10,11 +10,19 @@ import {
     CircularProgress,
     Paper,
     Stack,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Alert,
 } from '@mui/material';
 import {
     Close as CloseIcon,
     Image as ImageIcon,
-    Delete as DeleteIcon
+    Delete as DeleteIcon,
+    AutoAwesome as AutoAwesomeIcon,
+    AddPhotoAlternate,
+    Close,
 } from '@mui/icons-material';
 
 interface CreatePostModalProps {
@@ -36,6 +44,9 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
     const [file, setFile] = useState<File | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [aiLoading, setAiLoading] = useState(false);
+    const [aiError, setAiError] = useState<string | null>(null);
+    const [promptText, setPromptText] = useState('');
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = e.target.files?.[0];
@@ -85,134 +96,139 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
         }
     };
 
-    return (
-        <Modal
-            open={isOpen}
-            onClose={onClose}
-            aria-labelledby="create-post-modal"
-            sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backdropFilter: 'blur(5px)'
-            }}
-        >
-            <Paper
-                elevation={24}
-                sx={{
-                    position: 'relative',
-                    width: '100%',
-                    maxWidth: 600,
-                    maxHeight: '90vh',
-                    overflow: 'auto',
-                    m: 2,
-                    borderRadius: 2,
-                    bgcolor: 'background.paper',
-                }}
-            >
-                {/* Header */}
-                <Box sx={{
-                    p: 2,
-                    borderBottom: 1,
-                    borderColor: 'divider',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between'
-                }}>
-                    <Typography variant="h6" component="h2">
-                        Create New Post
-                    </Typography>
-                    <IconButton onClick={onClose} size="small">
-                        <CloseIcon />
-                    </IconButton>
-                </Box>
+    const generateAICaption = async () => {
+        try {
+            setAiLoading(true);
+            setAiError(null);
 
-                {/* Content */}
-                <Box component="form" onSubmit={handleSubmit} sx={{ p: 2 }}>
-                    <Stack spacing={3}>
+            // Get context from either the prompt input or the image
+            let context = promptText;
+            if (file) {
+                context += ` with an image named: ${file.name}`;
+            }
+
+            if (!context.trim()) {
+                throw new Error('Please provide some context for the caption');
+            }
+
+            const response = await fetch('http://localhost:3010/api/ai/generate-caption', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                },
+                body: JSON.stringify({ prompt: context })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to generate caption');
+            }
+
+            const data = await response.json();
+            setText(data.caption);
+        } catch (err) {
+            setAiError(err instanceof Error ? err.message : 'Failed to generate caption');
+        } finally {
+            setAiLoading(false);
+        }
+    };
+
+    return (
+        <Dialog open={isOpen} onClose={onClose} maxWidth="sm" fullWidth>
+            <DialogTitle>Create New Post</DialogTitle>
+            <DialogContent>
+                <Box sx={{ mb: 2 }}>
+                    {/* Main caption input */}
+                    <TextField
+                        fullWidth
+                        multiline
+                        rows={4}
+                        value={text}
+                        onChange={(e) => setText(e.target.value)}
+                        placeholder="What's on your mind?"
+                        sx={{ mb: 2 }}
+                    />
+
+                    {/* File upload section */}
+                    <Button
+                        component="label"
+                        variant="outlined"
+                        startIcon={<AddPhotoAlternate />}
+                        sx={{ mb: 2 }}
+                    >
+                        ADD IMAGE
+                        <input
+                            type="file"
+                            hidden
+                            accept="image/*"
+                            onChange={handleFileSelect}
+                        />
+                    </Button>
+
+                    {/* Image preview */}
+                    {previewUrl && (
+                        <Box sx={{ position: 'relative', mb: 2 }}>
+                            <img
+                                src={previewUrl}
+                                alt="Preview"
+                                style={{ maxWidth: '100%', maxHeight: '200px' }}
+                            />
+                            <IconButton
+                                onClick={clearImage}
+                                sx={{ position: 'absolute', top: 0, right: 0 }}
+                            >
+                                <Close />
+                            </IconButton>
+                        </Box>
+                    )}
+
+                    {/* AI Caption Generator section */}
+                    <Box sx={{ border: '1px solid #e0e0e0', p: 2, borderRadius: 1 }}>
+                        <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                            AI Caption Generator
+                        </Typography>
+
                         <TextField
-                            multiline
-                            rows={4}
-                            placeholder="What's on your mind?"
-                            value={text}
-                            onChange={(e) => setText(e.target.value)}
-                            required
                             fullWidth
-                            variant="outlined"
-                            InputProps={{
-                                sx: { bgcolor: 'background.paper' }
-                            }}
+                            size="small"
+                            value={promptText}
+                            onChange={(e) => setPromptText(e.target.value)}
+                            placeholder="Describe what you want to post about..."
+                            sx={{ mb: 1 }}
                         />
 
-                        {/* Image Preview */}
-                        {previewUrl && (
-                            <Box sx={{ position: 'relative', width: 'fit-content' }}>
-                                <img
-                                    src={previewUrl}
-                                    alt="Preview"
-                                    style={{
-                                        maxWidth: '100%',
-                                        maxHeight: 300,
-                                        objectFit: 'contain',
-                                        borderRadius: 8
-                                    }}
-                                />
-                                <IconButton
-                                    onClick={clearImage}
-                                    sx={{
-                                        position: 'absolute',
-                                        top: 8,
-                                        right: 8,
-                                        bgcolor: 'rgba(0, 0, 0, 0.5)',
-                                        '&:hover': {
-                                            bgcolor: 'rgba(0, 0, 0, 0.7)'
-                                        }
-                                    }}
-                                >
-                                    <DeleteIcon sx={{ color: 'white' }} />
-                                </IconButton>
-                            </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Button
+                                onClick={generateAICaption}
+                                disabled={aiLoading || !promptText.trim()}
+                                startIcon={aiLoading ? <CircularProgress size={20} /> : <AutoAwesomeIcon />}
+                                variant="contained"
+                                size="small"
+                            >
+                                Generate Caption
+                            </Button>
+                        </Box>
+
+                        {aiError && (
+                            <Alert severity="error" sx={{ mt: 1 }}>
+                                {aiError}
+                            </Alert>
                         )}
-
-                        {/* Image Upload Button */}
-                        <Button
-                            component="label"
-                            variant="outlined"
-                            startIcon={<ImageIcon />}
-                            sx={{ width: 'fit-content' }}
-                        >
-                            {file ? 'Change Image' : 'Add Image'}
-                            <input
-                                type="file"
-                                hidden
-                                accept="image/*"
-                                onChange={handleFileSelect}
-                            />
-                        </Button>
-
-                        {/* Submit Button */}
-                        <Button
-                            type="submit"
-                            variant="contained"
-                            disabled={isLoading || !text.trim()}
-                            sx={{
-                                mt: 2,
-                                bgcolor: 'primary.main',
-                                '&:hover': {
-                                    bgcolor: 'primary.dark'
-                                }
-                            }}
-                        >
-                            {isLoading ? (
-                                <CircularProgress size={24} color="inherit" />
-                            ) : (
-                                'Create Post'
-                            )}
-                        </Button>
-                    </Stack>
+                    </Box>
                 </Box>
-            </Paper>
-        </Modal>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={onClose}>CANCEL</Button>
+                <Button
+                    onClick={handleSubmit}
+                    variant="contained"
+                    disabled={isLoading || !text}
+                >
+                    {isLoading ? <CircularProgress size={24} /> : 'POST'}
+                </Button>
+            </DialogActions>
+        </Dialog>
     );
 };
 
