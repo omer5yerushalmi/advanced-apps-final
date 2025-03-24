@@ -15,4 +15,4 @@ COPY .env .env
 
 EXPOSE 4000
 
-CMD ["npm", "run"] 
+CMD ["npm", "start"] 
