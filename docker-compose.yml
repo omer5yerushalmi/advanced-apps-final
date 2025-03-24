@@ -15,7 +15,7 @@ services:
       - app-network
 
   backend:
-    image: omer5yerushalmi/backend:0.1
+    image: omer5yerushalmi/backend:0.2
     ports:
       - "4000:4000"
     volumes:
