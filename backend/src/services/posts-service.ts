@@ -54,10 +54,30 @@ const deletePost = async (id: string): Promise<PostDocument | undefined> => {
   return await Post.findByIdAndDelete(id) ?? undefined;
 };
 
+const toggleLike = async (postId: string, userId: string): Promise<PostDocument> => {
+  const post = await Post.findById(postId);
+  if (!post) {
+    throw new Error('Post not found');
+  }
+
+  const userLikedIndex = post.likes.indexOf(userId);
+  if (userLikedIndex === -1) {
+    post.likes.push(userId);
+    post.likesCount += 1;
+  } else {
+    post.likes.splice(userLikedIndex, 1);
+    post.likesCount -= 1;
+  }
+
+  console.log(post);
+  return await post.save();
+};
+
 export default {
   getAllPosts,
   getPostById,
   createPost,
   updatePost,
   deletePost,
+  toggleLike,
 };

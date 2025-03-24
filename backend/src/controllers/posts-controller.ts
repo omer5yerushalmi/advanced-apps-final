@@ -86,10 +86,22 @@ const updatePost = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+const toggleLike = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const postId = req.params.id;
+    const userId = req.body.userId;
+    const updatedPost = await postsService.toggleLike(postId, userId);
+    res.status(config.statusCode.SUCCESS).json(updatedPost);
+  } catch (error) {
+    res.status(config.statusCode.INTERNAL_SERVER_ERROR).json((error as Error).message);
+  }
+};
+
 export default {
   getAllPosts,
   getPostById,
   createPost,
   deletePost,
   updatePost,
+  toggleLike,
 };

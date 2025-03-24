@@ -6,6 +6,8 @@ export interface PostDocument extends Document {
   userName: string;
   text: string;
   imageUrl?: string;
+  likes: string[]; // Array of userIds who liked the post
+  likesCount: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -15,6 +17,8 @@ const postSchema = new Schema<PostDocument>({
   userName: { type: String, required: true },
   text: { type: String, required: true },
   imageUrl: { type: String, required: false },
+  likes: { type: [String], default: [] },
+  likesCount: { type: Number, default: 0 },
   createdAt: { type: String, required: true },
   updatedAt: { type: String, required: true }
 });

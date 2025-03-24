@@ -174,6 +174,25 @@ const upload = multer({ storage: storage });
  *         description: Post deleted successfully
  *       404:
  *         description: Post not found
+ * 
+ * @swagger
+ * /api/posts/{id}/like:
+ *   post:
+ *     summary: Like or unlike a post
+ *     tags: [Posts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Post liked/unliked successfully
+ *       404:
+ *         description: Post not found
  */
 
 const postsRoutes = (): Router => {
@@ -184,6 +203,7 @@ const postsRoutes = (): Router => {
   router.put("/:id", authenticate, upload.single('image'), postsController.updatePost);
   router.delete("/:id", authenticate, postsController.deletePost);
   router.post("/", authenticate, upload.single('image'), postsController.createPost);
+  router.post("/:id/like", authenticate, postsController.toggleLike);
 
   return router;
 };

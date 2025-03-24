@@ -32,6 +32,7 @@ const PostList = forwardRef((props, ref) => {
     const postsPerPage = 1;
     const [editingPost, setEditingPost] = useState<Post | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
 
     // Fetch all posts initially
     useEffect(() => {
@@ -165,6 +166,57 @@ const PostList = forwardRef((props, ref) => {
             // Handle error appropriately
         }
     };
+
+    const handleLikePost = async (postId: string) => {
+        try {
+            const response = await fetch(`${API_CONFIG.baseURL}/api/posts/${postId}/like`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userId: localStorage.getItem('userEmail')
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to like/unlike post');
+            }
+
+            const updatedPost = await response.json();
+
+            // Update both post lists with the new like status
+            setAllPosts(prev => prev.map(p => p._id === postId ? updatedPost : p));
+            setDisplayedPosts(prev => prev.map(p => p._id === postId ? updatedPost : p));
+
+            // Toggle the liked status in our local state
+            setLikedPosts(prev => {
+                const newSet = new Set(prev);
+                if (newSet.has(postId)) {
+                    newSet.delete(postId);
+                } else {
+                    newSet.add(postId);
+                }
+                return newSet;
+            });
+        } catch (err) {
+            console.error('Error liking post:', err);
+            setError(err instanceof Error ? err.message : 'An error occurred');
+        }
+    };
+
+    // Add this effect to initialize liked posts when posts are loaded
+    useEffect(() => {
+        // Initialize likedPosts based on the user's email in the likes array of each post
+        const userEmail = localStorage.getItem('userEmail');
+        const userLikedPosts = new Set(
+            allPosts
+                .filter(post => post.likes?.includes(userEmail || ''))
+                .map(post => post._id)
+        );
+        setLikedPosts(userLikedPosts);
+    }, [allPosts]);
 
     // Expose the refresh method
     useImperativeHandle(ref, () => ({
@@ -335,28 +387,68 @@ const PostList = forwardRef((props, ref) => {
                                 {/* Action Buttons */}
                                 <Box sx={{ px: 2, pt: 1.5 }}>
                                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                        <IconButton sx={{ p: 1, mr: 1 }}>
-                                            <FavoriteBorder sx={{ fontSize: 28 }} />
+                                        <IconButton
+                                            onClick={() => handleLikePost(post._id)}
+                                            sx={{
+                                                p: 1,
+                                                mr: 1,
+                                                color: likedPosts.has(post._id) ? 'error.main' : 'inherit',
+                                                '&:hover': {
+                                                    backgroundColor: 'transparent',
+                                                }
+                                            }}
+                                        >
+                                            <FavoriteBorder sx={{ fontSize: 24 }} />
                                         </IconButton>
-                                        <IconButton sx={{ p: 1, mr: 1 }}>
-                                            <ChatBubbleOutline sx={{ fontSize: 28 }} />
+                                        <IconButton
+                                            sx={{
+                                                p: 1,
+                                                mr: 1,
+                                                '&:hover': {
+                                                    backgroundColor: 'transparent',
+                                                }
+                                            }}
+                                        >
+                                            <ChatBubbleOutline sx={{ fontSize: 24 }} />
                                         </IconButton>
                                     </Box>
 
+                                    {/* Likes count */}
+                                    <Box sx={{ px: 1, pb: 1 }}>
+                                        <Typography
+                                            variant="body2"
+                                            sx={{
+                                                fontWeight: 600,
+                                                fontSize: '14px',
+                                            }}
+                                        >
+                                            {post.likesCount || 0} {post.likesCount === 1 ? 'like' : 'likes'}
+                                        </Typography>
+                                    </Box>
+
                                     {/* Post Content */}
-                                    <Typography
-                                        variant="body2"
-                                        sx={{
-                                            mt: 1,
-                                            fontSize: '14px',
-                                            lineHeight: 1.5
-                                        }}
-                                    >
-                                        <Box component="span" sx={{ fontWeight: 600, mr: 1 }}>
-                                            {post.userName}
-                                        </Box>
-                                        {post.text}
-                                    </Typography>
+                                    <Box sx={{ px: 1, pb: 2 }}>
+                                        <Typography
+                                            variant="body2"
+                                            sx={{
+                                                fontSize: '14px',
+                                                lineHeight: 1.5,
+                                                display: 'flex',
+                                                gap: '4px'
+                                            }}
+                                        >
+                                            <Box component="span" sx={{
+                                                fontWeight: 600,
+                                                '&:hover': {
+                                                    cursor: 'pointer',
+                                                    textDecoration: 'underline'
+                                                }
+                                            }}>
+                                                {post.userName}
+                                            </Box>
+                                            {post.text}
+                                        </Typography>
+                                    </Box>
                                 </Box>
                             </Card>
                             {index < displayedPosts.length - 1 && (
