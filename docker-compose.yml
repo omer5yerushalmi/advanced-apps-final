@@ -2,11 +2,7 @@ version: '3.8'
 
 services:
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        - VITE_API_URL=https://node69.cs.colman.ac.il:4000
+    image: omer5yerushalmi/frontend:0.2
     ports:
       - "443:443"
     volumes:
@@ -19,9 +15,7 @@ services:
       - app-network
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: omer5yerushalmi/backend:0.1
     ports:
       - "4000:4000"
     volumes:
