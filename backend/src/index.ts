@@ -54,18 +54,17 @@ if (process.env.NODE_ENV !== 'test') {
     try {
       await connect(config.mongoDB.uri);
 
-      console.log('Loading SSL certificates...');
-      const sslOptions = {
-      key: fs.readFileSync('/ssl/key.pem'),
-      cert: fs.readFileSync('/ssl/cert.pem')
-      };
-      console.log('SSL certificates loaded successfully');
-
       if(process.env.NODE_ENV !== 'prod'){
         app.listen(config.backend.port, () => {
           console.log(`Backend is running on port ${config.backend.port}`);
         });
       } else{
+        console.log('Loading SSL certificates...');
+        const sslOptions = {
+        key: fs.readFileSync('/ssl/key.pem'),
+        cert: fs.readFileSync('/ssl/cert.pem')
+        };
+        console.log('SSL certificates loaded successfully');
         https.createServer(sslOptions, app).listen(Number(config.backend.port), '0.0.0.0', () => {
           console.log(`Server running on port ${config.backend.port}`);
         });
