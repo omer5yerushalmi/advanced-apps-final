@@ -20,6 +20,7 @@ import { Post } from '../types/Post';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import EditPostModal from './EditPostModal';
 import { API_CONFIG } from '../config/api';
+import CommentModal from './CommentModal';
 
 const PostList = forwardRef((props, ref) => {
     const [allPosts, setAllPosts] = useState<Post[]>([]); // Store all posts
@@ -33,6 +34,8 @@ const PostList = forwardRef((props, ref) => {
     const [editingPost, setEditingPost] = useState<Post | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
+    const [commentModalOpen, setCommentModalOpen] = useState(false);
+    const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
 
     // Fetch all posts initially
     useEffect(() => {
@@ -401,6 +404,10 @@ const PostList = forwardRef((props, ref) => {
                                             <FavoriteBorder sx={{ fontSize: 24 }} />
                                         </IconButton>
                                         <IconButton
+                                            onClick={() => {
+                                                setSelectedPostId(post._id);
+                                                setCommentModalOpen(true);
+                                            }}
                                             sx={{
                                                 p: 1,
                                                 mr: 1,
@@ -481,6 +488,13 @@ const PostList = forwardRef((props, ref) => {
                 post={editingPost}
                 onEditComplete={handleEditComplete}
             />
+            {selectedPostId && (
+                <CommentModal
+                    open={commentModalOpen}
+                    onClose={() => setCommentModalOpen(false)}
+                    postId={selectedPostId}
+                />
+            )}
         </Box>
     );
 });
