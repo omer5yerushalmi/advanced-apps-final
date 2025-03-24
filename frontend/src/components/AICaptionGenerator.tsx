@@ -8,6 +8,8 @@ import {
     Alert
 } from '@mui/material';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import { API_CONFIG } from '../config/api';
+
 
 interface Props {
     onSelectCaption: (caption: string) => void;
@@ -23,7 +25,7 @@ const AICaptionGenerator: React.FC<Props> = ({ onSelectCaption }) => {
             setLoading(true);
             setError(null);
 
-            const response = await fetch('http://localhost:3010/api/ai/generate-caption', {
+            const response = await fetch(`${API_CONFIG.baseURL}/api/ai/generate-caption`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

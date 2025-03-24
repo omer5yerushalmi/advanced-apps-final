@@ -1,5 +1,4 @@
-# Build stage
-FROM node:20-alpine as build
+FROM node:20-alpine
 
 WORKDIR /frontend
 
@@ -14,14 +13,9 @@ ENV VITE_API_URL=$VITE_API_URL
 
 RUN npm run build
 
-# Production stage
-FROM node:20-alpine
-
 WORKDIR /frontend
 
 RUN npm install -g serve
-
-COPY --from=build /frontend/dist ./dist
 
 EXPOSE 443
 

@@ -24,6 +24,8 @@ import {
     AddPhotoAlternate,
     Close,
 } from '@mui/icons-material';
+import { API_CONFIG } from '../config/api';
+
 
 interface CreatePostModalProps {
     isOpen: boolean;
@@ -78,7 +80,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
                 formData.append('image', file);
             }
 
-            await axios.post('http://localhost:3010/api/posts', formData, {
+            await axios.post(`${API_CONFIG.baseURL}/api/posts`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
@@ -111,7 +113,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({
                 throw new Error('Please provide some context for the caption');
             }
 
-            const response = await fetch('http://localhost:3010/api/ai/generate-caption', {
+            const response = await fetch(`${API_CONFIG.baseURL}/api/ai/generate-caption`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

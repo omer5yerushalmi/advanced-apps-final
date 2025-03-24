@@ -3,6 +3,7 @@ import { Box, Avatar, Typography, Paper, Container, Alert, IconButton } from '@m
 import { Edit as EditIcon } from '@mui/icons-material';
 import { User } from '../types/User';
 import EditUserModal from './EditUserModal';
+import { API_CONFIG } from '../config/api';
 
 interface UserProfileProps {
     userEmail: string | null;
@@ -21,7 +22,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userEmail }) => {
     
     const fetchUserDetails = async () => {
         try {
-            const response = await fetch(`http://localhost:3010/api/users/email/${userEmail}`, {
+            const response = await fetch(`${API_CONFIG.baseURL}/api/users/email/${userEmail}`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
                 }
@@ -52,7 +53,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ userEmail }) => {
                 formData.append('image', file);
             }
 
-            const response = await fetch(`http://localhost:3010/api/users/${userId}`, {
+            const response = await fetch(`${API_CONFIG.baseURL}/api/users/${userId}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
