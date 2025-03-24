@@ -24,7 +24,7 @@ const getPostById = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-const base = process.env.BASE_DOMAIN;
+const base = "http://127.0.0.1:3010";
 
 const createPost = async (req: Request, res: Response): Promise<void> => {
   try {

@@ -19,7 +19,6 @@ import {
 import { Post } from '../types/Post';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import EditPostModal from './EditPostModal';
-import { API_CONFIG } from '../config/api';
 
 const PostList = forwardRef((props, ref) => {
     const [allPosts, setAllPosts] = useState<Post[]>([]); // Store all posts
@@ -49,7 +48,7 @@ const PostList = forwardRef((props, ref) => {
     const fetchAllPosts = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`${API_CONFIG.baseURL}/api/posts`, {
+            const response = await fetch(`http://localhost:3010/api/posts`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
                 }
@@ -108,7 +107,7 @@ const PostList = forwardRef((props, ref) => {
 
     const handleDeletePost = async (postId: string) => {
         try {
-            const response = await fetch(`${API_CONFIG.baseURL}/api/posts/${postId}`, {
+            const response = await fetch(`http://localhost:3010/api/posts/${postId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
@@ -140,7 +139,7 @@ const PostList = forwardRef((props, ref) => {
                 formData.append('image', file);
             }
 
-            const response = await fetch(`${API_CONFIG.baseURL}/api/posts/${postId}`, {
+            const response = await fetch(`http://localhost:3010/api/posts/${postId}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
