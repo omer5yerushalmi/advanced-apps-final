@@ -4,7 +4,7 @@ dotenv.config();
 
 const config = {
   backend: {
-    port: process.env.BACKEND_PORT || 3010,
+    port: process.env.BACKEND_PORT || 4000,
   },
   mongoDB: {
     uri: process.env.MONGO_URI || "mongodb://root:dev@127.0.0.1/?authSource=admin",

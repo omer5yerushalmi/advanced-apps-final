@@ -71,7 +71,7 @@ const deleteUser = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-const base = "http://127.0.0.1:3010";
+const base = process.env.BASE_DOMAIN;
 
 const updateUser = async (req: Request, res: Response): Promise<void> => {
   try {

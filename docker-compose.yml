@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=https://node69.cs.colman.ac.il:4000
+    ports:
+      - "443:443"
+    volumes:
+      - ./ssl:/ssl
+    environment:
+      - PORT=443
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./ssl:/ssl
+      - ./backend/public:/backend/public
+      - ./backend/.env:/backend/.env
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
