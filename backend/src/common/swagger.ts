@@ -4,7 +4,7 @@ import config from "../config/config";
 import express from "express";
 
 const createSwagger = (app: express.Application) => {
-    if (config.nodeEnv == "development") {
+    if (config.nodeEnv == "development" ||  config.nodeEnv == "prod") {
         const options = {
             definition: {
                 openapi: "3.0.0",
