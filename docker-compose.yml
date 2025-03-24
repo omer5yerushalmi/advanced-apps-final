@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   frontend:
-    image: omer5yerushalmi/frontend:0.2
+    image: omer5yerushalmi/frontend:0.3
     ports:
       - "443:443"
     volumes:
@@ -15,7 +15,7 @@ services:
       - app-network
 
   backend:
-    image: omer5yerushalmi/backend:0.2
+    image: omer5yerushalmi/backend:0.3
     ports:
       - "4000:4000"
     volumes:
