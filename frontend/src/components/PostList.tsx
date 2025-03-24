@@ -226,6 +226,15 @@ const PostList = forwardRef((props, ref) => {
         refreshPosts
     }));
 
+    const handleCommentCountUpdate = (postId: string, count: number) => {
+        setAllPosts(prev => prev.map(p =>
+            p._id === postId ? { ...p, commentsCount: count } : p
+        ));
+        setDisplayedPosts(prev => prev.map(p =>
+            p._id === postId ? { ...p, commentsCount: count } : p
+        ));
+    };
+
     if (error) {
         return (
             <Container>
@@ -429,7 +438,7 @@ const PostList = forwardRef((props, ref) => {
                                                 fontSize: '14px',
                                             }}
                                         >
-                                            {post.likesCount || 0} {post.likesCount === 1 ? 'like' : 'likes'}
+                                            {post.likesCount || 0} {post.likesCount === 1 ? 'like' : 'likes'} • {post.commentsCount || 0} {post.commentsCount === 1 ? 'comment' : 'comments'}
                                         </Typography>
                                     </Box>
 
@@ -493,6 +502,7 @@ const PostList = forwardRef((props, ref) => {
                     open={commentModalOpen}
                     onClose={() => setCommentModalOpen(false)}
                     postId={selectedPostId}
+                    onCommentCountUpdate={handleCommentCountUpdate}
                 />
             )}
         </Box>

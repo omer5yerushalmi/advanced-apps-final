@@ -6,6 +6,7 @@ export interface Post {
     imageUrl?: string;
     likes: string[];  // Array of user emails who liked the post
     likesCount: number;
+    commentsCount: number;
     createdAt: string;
     updatedAt: string;
 } 

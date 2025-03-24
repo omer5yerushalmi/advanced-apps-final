@@ -8,6 +8,7 @@ export const mockPosts: Post[] = [
         text: '🌅 Perfect sunset vibes #photography #nature',
         likes: [],
         likesCount: 0,
+        commentsCount: 0,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
     },
@@ -18,6 +19,7 @@ export const mockPosts: Post[] = [
         text: '✈️ Adventure awaits! #travel #wanderlust',
         likes: [],
         likesCount: 0,
+        commentsCount: 0,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
     }

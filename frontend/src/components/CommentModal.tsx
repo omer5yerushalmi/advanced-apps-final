@@ -24,9 +24,10 @@ interface CommentModalProps {
     open: boolean;
     onClose: () => void;
     postId: string;
+    onCommentCountUpdate: (postId: string, count: number) => void;
 }
 
-const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, postId }) => {
+const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, postId, onCommentCountUpdate }) => {
     const [comments, setComments] = useState<Comment[]>([]);
     const [newComment, setNewComment] = useState('');
     const [loading, setLoading] = useState(false);
@@ -40,7 +41,7 @@ const CommentModal: React.FC<CommentModalProps> = ({ open, onClose, postId }) =>
             });
             const data = await response.json();
             setComments(data);
-            console.log(data);
+            onCommentCountUpdate(postId, data.length);
         } catch (error) {
             console.error('Error fetching comments:', error);
         }

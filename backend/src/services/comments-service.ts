@@ -1,6 +1,7 @@
 import { Comment, CommentDocument } from "../models/comment";
 import postsService from "./posts-service";
 import mongoose from "mongoose";
+import { Post } from "../models/post";
 
 interface CommentData {
   post: string;
@@ -14,7 +15,14 @@ const createComment = async (commentData: CommentData): Promise<CommentDocument 
   if (!post) {
     return undefined;
   }
-  return await Comment.create(commentData);
+
+  const comment = await Comment.create(commentData);
+  await Post.findByIdAndUpdate(
+    commentData.post,
+    { $inc: { commentsCount: 1 } }
+  );
+
+  return comment;
 };
 
 const getCommentById = async (id: string): Promise<CommentDocument | undefined> => {
@@ -42,12 +50,19 @@ const updateComment = async (id: string, content: string): Promise<CommentDocume
   return comment;
 };
 
-const deleteComment = async (id: string): Promise<CommentDocument | undefined> => {
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return undefined;
+const deleteComment = async (id: string): Promise<CommentDocument | null> => {
+  const comment = await Comment.findById(id);
+  if (!comment) {
+    return null;
   }
 
-  return await Comment.findByIdAndDelete(id) ?? undefined;
+  await Comment.findByIdAndDelete(id);
+  await Post.findByIdAndUpdate(
+    comment.post,
+    { $inc: { commentsCount: -1 } }
+  );
+
+  return comment;
 };
 
 export default {
