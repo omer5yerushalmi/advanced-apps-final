@@ -13,7 +13,7 @@ const createSwagger = (app: express.Application) => {
                     version: "1.0.0",
                     description: "REST server including authentication using JWT",
                 },
-                servers: [{ url: `http://localhost:${config.backend.port}`, }, {url: `http://node69.cs.colman.ac.il:4000` }],
+                servers: [{ url: `http://localhost:${config.backend.port}`, }, {url: `https://node69.cs.colman.ac.il:4000` }],
             },
             apis: ["./src/routes/*.ts"],
         };
